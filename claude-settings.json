@@ -1,0 +1,32 @@
+{
+    "permissions": {
+      "allow": [
+        "Bash(bash /Users/tyrel/.codex/skills/*)",
+        "Bash(bash /Users/tyrel/.claude/skills/*)",
+        "Bash(sh /Users/tyrel/.codex/skills/*)",
+        "Bash(sh /Users/tyrel/.claude/skills/*)",
+        "Bash(python3 /Users/tyrel/.codex/skills/*)",
+        "Bash(python3 /Users/tyrel/.claude/skills/*)",
+        "Bash(python /Users/tyrel/.codex/skills/*)",
+        "Bash(python /Users/tyrel/.claude/skills/*)",
+        "Bash(/Users/tyrel/.codex/skills/*)",
+        "Bash(/Users/tyrel/.claude/skills/*)",
+        "Bash(find *)",
+        "Bash(ls*)",
+        "Bash(cd *)",
+        "Bash(rm *)",
+        "Bash(git *)",
+        "Bash(go *)",
+        "Bash(gh *)",
+        "Read",
+        "Edit",
+        "Write",
+        "WebFetch"
+      ],
+      "ask": [
+        "Bash(curl *)",
+        "Bash(wget *)"
+      ]
+    }
+  }
+  
