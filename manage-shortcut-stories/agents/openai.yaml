@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shortcut Stories"
+  short_description: "Find, create, and update Shortcut stories"
+  default_prompt: "Find or create the matching Shortcut story for this thread, list projects/workflows/teams as needed, assign owners/teams, or move it to in-progress/ready-for-review."

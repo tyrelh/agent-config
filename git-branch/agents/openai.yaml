@@ -1,0 +1,6 @@
+interface:
+  display_name: "Git Branching"
+  short_description: "Git branching"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Creata a branch for the current task, or create a new branch for this."
