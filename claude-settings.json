@@ -11,22 +11,19 @@
         "Bash(python /Users/tyrel/.claude/skills/*)",
         "Bash(/Users/tyrel/.codex/skills/*)",
         "Bash(/Users/tyrel/.claude/skills/*)",
-        "Bash(find *)",
-        "Bash(ls*)",
-        "Bash(cd *)",
-        "Bash(rm *)",
-        "Bash(git *)",
-        "Bash(go *)",
-        "Bash(gh *)",
+        "Bash(*)",
         "Read",
         "Edit",
         "Write",
-        "WebFetch"
+        "WebFetch",
+        "Search",
+        "WebSearch"
       ],
       "ask": [
         "Bash(curl *)",
         "Bash(wget *)"
-      ]
+      ],
+      "defaultMode": "bypassPermissions"
     }
   }
   
