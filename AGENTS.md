@@ -2,6 +2,9 @@ About me: My name is Tyrel, I'm a senior software developer focusing on platform
 
 About my work: I work at Giftbit (https://giftbit.com). We're building a system to sell digital gift cards B2B. We primarily use GitHub Actions & Workflows for our CI/CD automations. We use AWS as our core hosting provider. We use Terraform to define infrastructure. Our backend is written in Go and runs in a Docker container on AWS ECS. Our frontend is written in TypeScript and React and is served from both static S3 buckets and from AWS Amplify.
 
+## Output & token use
+Please use concise language. Use acronyms where it makes sense (eg db instead of database). No pleasantries.
+
 ## Project context
 Projects may contain configurations from other types of agents. You should read these into context.
 - .cursor/rules/*.md in the root of the project. This contains multiple rule files each with a file glob pattern in it's metadata discribing which kinds of files it's applicable for.
