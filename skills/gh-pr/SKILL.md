@@ -40,6 +40,8 @@ If a ticket is available when creating the PR, add a link to the ticket in the d
 
 Create the PR using the `gh` CLI.
 
+Always create PRs in **draft** state by passing the `--draft` flag to `gh pr create`.
+
 ## References
 
 Use `references/teammates.md` for teammate names to GitHub handle lookups when adding reviewers.
