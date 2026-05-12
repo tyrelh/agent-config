@@ -41,6 +41,7 @@ Find the best-matching Shortcut story for the current thread, create new stories
 - `scripts/shortcut_list_iterations.sh [name_regex]`
 - `scripts/shortcut_get_current_iteration.sh`
 - `scripts/shortcut_set_iteration.sh <story_id> <iteration_id>`
+- `scripts/shortcut_get_iteration_doc.sh [iteration_id]`
 
 All scripts respect:
 - `SHORTCUT_API_TOKEN` (required)
@@ -55,6 +56,7 @@ All scripts respect:
 - `SHORTCUT_GROUP_ID` and `SHORTCUT_OWNER_IDS` (optional, used by update/create scripts)
 - `SHORTCUT_INCLUDE_ARCHIVED` (optional, list scripts include archived when set to `1`)
 - `SHORTCUT_DRY_RUN` (optional, when set to `1` prints payload without modifying data)
+- `SHORTCUT_ITERATION_DOC_TITLE` (optional, default `Sprint/Iteration Planning`)
 
 ## Task: Find Matching Story
 - First check the current branch for a Shortcut ID pattern `sc-<id>-`.
@@ -265,6 +267,16 @@ curl -sS -X PUT "$SHORTCUT_API_BASE_URL/stories/<story_id>" \
   -d '{"iteration_id":<iteration_id>}'
 ```
 Use `scripts/shortcut_set_iteration.sh` for a debuggable version of this call.
+
+## Task: Get Iteration Planning Document
+- Use when you need the planning document attached to an iteration.
+- The Shortcut API has no direct link between iterations and documents. This script works around that by searching documents titled "Sprint/Iteration Planning" for one containing the iteration's URL in its body.
+- Accepts an optional iteration ID argument; defaults to the current (started) iteration.
+- Lists all documents with the matching title, fetches each and checks for `iteration/{id}` in `content_markdown`. Stops on first match.
+- Returns the full document object (`id`, `title`, `created_at`, `updated_at`, `app_url`, `content_markdown`).
+- Configurable via `SHORTCUT_ITERATION_DOC_TITLE` (default: "Sprint/Iteration Planning").
+
+Use `scripts/shortcut_get_iteration_doc.sh [iteration_id]` to fetch the document.
 
 ## Task: Resolve Owner Details
 - Given a story `owner_ids` entry, fetch the member details from the Shortcut API.
