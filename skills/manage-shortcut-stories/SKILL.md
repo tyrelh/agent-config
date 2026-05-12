@@ -1,6 +1,6 @@
 ---
 name: manage-shortcut-stories
-description: Manage Shortcut stories via API. Use when you need to find or create a Shortcut ticket, list projects/workflows/teams, assign owners/teams, fetch story details, or update a story's workflow state to in-progress (started) or ready-for-review. Includes keyword-based search with user prompts, story creation, and story updates.
+description: Manage Shortcut stories via API. Use when you need to find or create a Shortcut ticket, list projects/workflows/teams, assign owners/teams, fetch story details, list your own tickets by state, or update a story's workflow state to in-progress (started) or ready-for-review. Includes keyword-based search with user prompts, story creation, and story updates.
 ---
 
 # Manage Shortcut Stories
@@ -34,6 +34,7 @@ Find the best-matching Shortcut story for the current thread, create new stories
 - `scripts/shortcut_list_groups.sh [name_regex]`
 - `scripts/shortcut_list_workflows.sh [name_regex]`
 - `scripts/shortcut_list_members.sh [name_or_email_regex]`
+- `scripts/shortcut_list_my_stories.sh <state> [page_size]` (state: unstarted | started | done)
 - `scripts/shortcut_list_stories_by_label.sh "<label_name>" [page_size]`
 - `scripts/shortcut_create_story.sh "<name>" "<description>" <story_type> [workflow_state_id] [group_id] [owner_ids_csv]`
 - `scripts/shortcut_set_group_and_owner.sh <story_id> [group_id] [owner_ids_csv]`
@@ -167,6 +168,29 @@ curl -sS -G "$SHORTCUT_API_BASE_URL/search/stories" \
   --data-urlencode "detail=full"
 ```
 Use `scripts/shortcut_list_stories_by_label.sh` for a paginated, debuggable version of this call.
+
+## Task: List My Stories by State
+- Use when the caller wants to see their own tickets filtered by workflow state type.
+- Accepts one of three states: `unstarted`, `started`, or `done`.
+- Resolves the current user's `mention_name` via `GET /api/v3/member`, then searches with `owner:<mention_name>`.
+- Paginates through all results.
+- Respects `SHORTCUT_WORKFLOW_ID` and `SHORTCUT_INCLUDE_ARCHIVED` filters.
+
+### API Example (my stories)
+```bash
+# First resolve mention_name from the API token
+MENTION_NAME="$(curl -sS "$SHORTCUT_API_BASE_URL/member" \
+  -H "Shortcut-Token: $SHORTCUT_API_TOKEN" | jq -r '.mention_name')"
+
+# Then search with owner:<mention_name>
+curl -sS -G "$SHORTCUT_API_BASE_URL/search/stories" \
+  -H "Shortcut-Token: $SHORTCUT_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data-urlencode "query=owner:$MENTION_NAME is:started" \
+  --data-urlencode "page_size=25" \
+  --data-urlencode "detail=full"
+```
+Use `scripts/shortcut_list_my_stories.sh` for a paginated, debuggable version of this call.
 
 ## Task: Move Story to In-Progress
 - Use the started state ID from `references/shortcut-config.md`.
