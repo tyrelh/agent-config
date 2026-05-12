@@ -7,7 +7,7 @@ Please use concise language. Use acronyms where it makes sense (eg db instead of
 
 ## Project context
 Projects may contain configurations from other types of agents. You should read these into context.
-- .cursor/rules/*.md in the root of the project. This contains multiple rule files each with a file glob pattern in it's metadata discribing which kinds of files it's applicable for.
+- .cursor/rules/*.md in the root of the project. This contains multiple rule files each with a file glob pattern in it's metadata describing which kinds of files it's applicable for.
 
 ## Git Etiquette
 When using git, you should follow these conventions:
