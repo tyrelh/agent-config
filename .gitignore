@@ -17,3 +17,5 @@ manage-shortcut-stories/references/shortcut-config.md
 !gh-pr/**
 !git-branch/
 !git-branch/**
+!handoff/
+!handoff/**
