@@ -28,6 +28,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - skill-installer: Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos). (file: /Users/tyrel/.codex/skills/.system/skill-installer/SKILL.md)
 - htmx: HTMX development guidelines for building dynamic web applications with minimal JavaScript using HTML attributes. (file: /Users/tyrel/.codex/skills/htmx/SKILL.md)
 - terraform-giftbit: Terraform workflows infrastructure on AWS with Datadog and Stytch providers. Use when Codex needs to create or update Terraform modules, add or refactor resources, manage state/backends, or edit environment configuration in `config/env.tfvars` files that CI/CD iterates over. (file: /Users/tyrel/.codex/skills/terraform-giftbit/SKILL.md)
+- handoff: Used to summarize a threads context to be passed off to a new agent or thread.
 ### How to use skills
 - Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.
 - Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill's description shown above, you must use that skill for that turn. Multiple mentions mean use them all. Do not carry skills across turns unless re-mentioned.
