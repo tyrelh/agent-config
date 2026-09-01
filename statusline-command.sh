@@ -32,6 +32,7 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 # Segment icons. Nerd Font glyphs, so they need a patched font — set any of
 # them empty to drop that icon and its trailing space with it.
 ICON_MODEL=""    # fa-flash            U+F0E7
+ICON_CONTEXT=""  # fa-tachometer       U+F0E4
 ICON_PROJECT=""  # oct-repo            U+F401
 ICON_BRANCH=""   # oct-git_branch      U+F418
 ICON_PR=""       # oct-git_pull_request U+F407
@@ -261,7 +262,7 @@ if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
 fi
 if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
-  push "${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$purple")"
+  push "${ICON_CONTEXT:+${purple}${ICON_CONTEXT}${reset} }${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$purple")"
 fi
 left=$acc
 
