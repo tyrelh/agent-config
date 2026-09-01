@@ -1,54 +1,82 @@
 #!/bin/sh
-# Claude Code statusLine: model name + context usage progress bar
+# Claude Code statusLine: model, effort, context + rate-limit meters, plugin badges
 
 input=$(cat)
 
-model=$(printf '%s' "$input" | jq -r '.model.display_name')
+model=$(printf '%s' "$input" | jq -r '.model.display_name // empty')
 model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
-used=$(printf '%s' "$input" | jq -r '.context_window.used_percentage // empty')
 # effort absent when model doesn't support the reasoning effort param
 effort=$(printf '%s' "$input" | jq -r '.effort.level // empty')
 [ -n "$effort" ] && effort=" $effort"
 
-# Plugin mode badges (caveman, ponytail). Each script prints a bare badge or
-# nothing if its flag file is absent. ponytail: hardcoded plugin paths, revisit
-# if plugins move out of marketplaces/.
-plugins="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces"
+# rate_limits absent on API-key/Bedrock accounts; empty => meter not rendered
+eval "$(printf '%s' "$input" | jq -r '
+  "used=\(.context_window.used_percentage // "")
+   five=\(.rate_limits.five_hour.used_percentage // "")
+   five_at=\(.rate_limits.five_hour.resets_at // "")
+   seven=\(.rate_limits.seven_day.used_percentage // "")
+   seven_at=\(.rate_limits.seven_day.resets_at // "")"')"
+
+esc=$(printf '\033')
+dim="${esc}[2m"
+reset="${esc}[0m"
+
+# bar PCT WIDTH -> "████░░ 37%", green <70, yellow >=70, red >=90
+bar() {
+  _w=$2
+  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
+  _e=$((_w - _f))
+  _pct=$(printf '%.0f' "$1")
+  _bar=""
+  [ "$_f" -gt 0 ] && _bar=$(printf '%0.s█' $(seq 1 "$_f"))
+  [ "$_e" -gt 0 ] && _bar="${_bar}$(printf '%0.s░' $(seq 1 "$_e"))"
+  if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
+  elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
+  else _c="${esc}[32m"; fi
+  printf '%s%s%s %s%s%%%s' "$_c" "$_bar" "$reset" "$dim" "$_pct" "$reset"
+}
+
+# countdown EPOCH -> "3d4h" / "2h14m" / "12m"; empty once elapsed
+countdown() {
+  _r=$(( $1 - $(date +%s) ))
+  [ "$_r" -le 0 ] && return
+  _h=$((_r / 3600))
+  _m=$(((_r % 3600) / 60))
+  if [ "$_h" -ge 24 ]; then printf '%dd%dh' $((_h / 24)) $((_h % 24))
+  elif [ "$_h" -gt 0 ]; then printf '%dh%dm' "$_h" "$_m"
+  else printf '%dm' "$_m"; fi
+}
+
+# meter LABEL PCT WIDTH RESETS_AT -> " 5h ██░░░░ 23% 1h12m", nothing if pct empty
+meter() {
+  [ -n "$2" ] || return
+  printf ' %s%s%s %s' "$dim" "$1" "$reset" "$(bar "$2" "$3")"
+  if [ -n "$4" ]; then
+    _cd=$(countdown "$4")
+    [ -n "$_cd" ] && printf ' %s%s%s' "$dim" "$_cd" "$reset"
+  fi
+}
+
+# Plugin mode badges, read straight from the flag files the caveman/ponytail
+# hooks write, so the label stays compact. Refuse symlinks and strip to
+# [a-z0-9-] like the upstream scripts do: the flag content is rendered to the
+# terminal, so unfiltered bytes would allow ANSI-escape injection.
 badges=""
-for p in caveman ponytail; do
-  s="$plugins/$p/hooks/$p-statusline.sh"
-  [ -f "$s" ] || continue
-  b=$(bash "$s" </dev/null 2>/dev/null)
-  [ -n "$b" ] && badges="${badges} ${b}"
-done
+badge() {  # NAME SHORT COLOR
+  _f="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.$1-active"
+  { [ -f "$_f" ] && [ ! -L "$_f" ]; } || return
+  _m=$(head -c 64 "$_f" 2>/dev/null | tr -d '\n\r' | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
+  case "$_m" in
+    ''|off) return ;;
+    full) _l="$2" ;;
+    *) _l="$2:$_m" ;;
+  esac
+  badges="${badges} ${esc}[38;5;${3}m${_l}${reset}"
+}
+badge caveman CM 172
+badge ponytail PT 108
 
-width=10
-
-if [ -n "$used" ]; then
-  filled=$(awk -v u="$used" -v w="$width" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
-  pct=$(printf '%.0f' "$used")
-else
-  filled=0
-  pct=0
-fi
-empty=$((width - filled))
-
-bar=""
-if [ "$filled" -gt 0 ]; then
-  bar=$(printf '%0.s█' $(seq 1 "$filled"))
-fi
-if [ "$empty" -gt 0 ]; then
-  bar="${bar}$(printf '%0.s░' $(seq 1 "$empty"))"
-fi
-
-if [ "$pct" -ge 90 ]; then
-  color=$(printf '\033[31m')
-elif [ "$pct" -ge 70 ]; then
-  color=$(printf '\033[33m')
-else
-  color=$(printf '\033[32m')
-fi
-dim=$(printf '\033[2m')
-reset=$(printf '\033[0m')
-
-printf '%s\n' "${dim}${model}${effort}${reset} ${color}[${bar}]${reset} ${dim}${pct}%${reset}${badges}"
+printf '%s%s%s%s %s' "$dim" "$model" "$effort" "$reset" "$(bar "${used:-0}" 10)"
+meter 5h "$five" 6 "$five_at"
+meter 7d "$seven" 6 "$seven_at"
+printf '%s\n' "$badges"
