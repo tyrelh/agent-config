@@ -23,6 +23,7 @@ eval "$(printf '%s' "$input" | jq -r '@sh "
   model=\(.model.display_name // "")
   effort=\(.effort.level // "")
   used=\(.context_window.used_percentage // "")
+  ctx_size=\(.context_window.context_window_size // "")
   five=\(.rate_limits.five_hour.used_percentage // "")
   five_at=\(.rate_limits.five_hour.resets_at // "")
   seven=\(.rate_limits.seven_day.used_percentage // "")
@@ -65,6 +66,18 @@ bar() {
   # green meters keep a dim percentage so they stay visually secondary
   _p="${3:+$dim$_c}"
   printf '%s[%s]%s %s%s%%%s' "$_c" "$_bar" "$reset" "${_p:-$dim}" "$_pct" "$reset"
+}
+
+# tokens N -> "1M" / "1.5M" / "200k"; empty when the size is unknown
+tokens() {
+  [ -n "$1" ] || return
+  if [ "$1" -ge 1000000 ]; then
+    _t=$(( $1 % 1000000 / 100000 ))
+    if [ "$_t" -gt 0 ]; then printf '%d.%dM' $(( $1 / 1000000 )) "$_t"
+    else printf '%dM' $(( $1 / 1000000 )); fi
+  else
+    printf '%dk' $(( $1 / 1000 ))
+  fi
 }
 
 # countdown EPOCH -> "3d4h" / "2h14m" / "12m"; empty once elapsed
@@ -157,7 +170,10 @@ if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   # effort absent when the model doesn't support the reasoning effort param
   push "${purple}${model}${dim}${effort:+ $effort}${reset}"
 fi
-[ "$SHOW_CONTEXT" = 1 ] && push "$(bar "${used:-0}" 10 "$purple")"
+if [ "$SHOW_CONTEXT" = 1 ]; then
+  _cs=$(tokens "$ctx_size")
+  push "${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" 10 "$purple")"
+fi
 [ "$SHOW_SESSION_LIMIT" = 1 ] && push "$(meter 5h "$five" 6 "$five_at")"
 [ "$SHOW_WEEKLY_LIMIT" = 1 ] && push "$(meter 7d "$seven" 6 "$seven_at")"
 if [ "$SHOW_PLUGINS" = 1 ]; then
