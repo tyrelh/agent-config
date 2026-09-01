@@ -6,6 +6,18 @@ input=$(cat)
 model=$(printf '%s' "$input" | jq -r '.model.display_name')
 used=$(printf '%s' "$input" | jq -r '.context_window.used_percentage // empty')
 
+# Plugin mode badges (caveman, ponytail). Each script prints a bare badge or
+# nothing if its flag file is absent. ponytail: hardcoded plugin paths, revisit
+# if plugins move out of marketplaces/.
+plugins="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/marketplaces"
+badges=""
+for p in caveman ponytail; do
+  s="$plugins/$p/hooks/$p-statusline.sh"
+  [ -f "$s" ] || continue
+  b=$(bash "$s" </dev/null 2>/dev/null)
+  [ -n "$b" ] && badges="${badges} ${b}"
+done
+
 width=10
 
 if [ -n "$used" ]; then
@@ -35,4 +47,4 @@ fi
 dim=$(printf '\033[2m')
 reset=$(printf '\033[0m')
 
-printf '%s\n' "${dim}${model}${reset} ${color}[${bar}]${reset} ${dim}${pct}%${reset}"
+printf '%s\n' "${dim}${model}${reset} ${color}[${bar}]${reset} ${dim}${pct}%${reset}${badges}"
