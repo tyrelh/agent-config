@@ -66,6 +66,7 @@ purple="${esc}[38;5;141m"
 green="${esc}[32m"
 cyan="${esc}[36m"
 sep="${dim} · ${reset}"
+bsep="${dim}/${reset}"  # between badges, tighter than the segment separator
 
 case "$BAR_STYLE" in
   block) bar_fill="█" bar_empty="░" ;;
@@ -162,7 +163,7 @@ meter() {
 
 # flag LABEL COLOR — append a bare badge to the right-hand group
 flag() {
-  badges="${badges}${badges:+ }${esc}[38;5;${2}m[${1}]${reset}"
+  badges="${badges}${badges:+$bsep}${esc}[38;5;${2}m${1}${reset}"
 }
 
 # badge NAME SHORT COLOR — read the flag files the caveman/ponytail hooks
@@ -179,7 +180,7 @@ badge() {
     full) _l="$2" ;;
     *) _l="$2:$_m" ;;
   esac
-  badges="${badges}${badges:+ }${esc}[38;5;${3}m[${_l}]${reset}"
+  badges="${badges}${badges:+$bsep}${esc}[38;5;${3}m${_l}${reset}"
 }
 
 # Line 1: project, branch, dirty count, PR
