@@ -49,6 +49,7 @@
   "model": "opus[1m]",
   "statusLine": {
     "type": "command",
-    "command": "sh /Users/tyrel/.claude/statusline-command.sh"
+    "command": "sh /Users/tyrel/.claude/statusline-command.sh",
+    "refreshInterval": 120
   }
 }
