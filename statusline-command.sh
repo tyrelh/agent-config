@@ -14,6 +14,17 @@ SHOW_SESSION_LIMIT=1  # 5-hour rate limit meter
 SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
 
+# Progress bar style.
+#   BAR_CAPS  1 wraps each bar in [ ], 0 renders it bare
+#   BAR_STYLE block   ████░░░░░░
+#             braille ⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀
+#             pips    ▰▰▱▱▱
+#             dash    ▰▰▰----
+#             shade   ▓▓▓▓▒▒▒▒▒▒
+#             circles ●●●●○○○○○○
+BAR_CAPS=0
+BAR_STYLE=braille
+
 input=$(cat)
 
 # rate_limits absent on API-key/Bedrock accounts, pr absent outside a repo or
@@ -39,7 +50,18 @@ esc=$(printf '\033')
 dim="${esc}[2m"
 reset="${esc}[0m"
 purple="${esc}[38;5;141m"
+green="${esc}[32m"
 sep="${dim} · ${reset}"
+
+case "$BAR_STYLE" in
+  block) bar_fill="█" bar_empty="░" ;;
+  pips)  bar_fill="▰" bar_empty="▱" ;;
+  dash)  bar_fill="▰" bar_empty="-" ;;
+  shade) bar_fill="▓" bar_empty="▒" ;;
+  circles) bar_fill="●" bar_empty="○" ;;
+  *)     bar_fill="⣿" bar_empty="⣀" ;;  # braille, the default
+esac
+[ "$BAR_CAPS" = 1 ] && { cap_l="["; cap_r="]"; } || { cap_l=""; cap_r=""; }
 
 # push SEGMENT — append to $acc, inserting a separator only between segments
 # that actually rendered, so toggles never leave a stray delimiter behind.
@@ -48,24 +70,27 @@ push() {
   acc="${acc}${acc:+$sep}$1"
 }
 
-# bar PCT WIDTH [BASECOLOR] -> "[████░░] 37%". Warn thresholds always
+# bar PCT WIDTH [BASECOLOR] -> "[⣿⣿⣿⣿⣀⣀] 37%", glyphs and caps per
+# BAR_STYLE / BAR_CAPS. Warn thresholds always
 # override the base colour, so a recoloured bar keeps its yellow at 70% and
 # its red at 90%. Default base colour is green.
 bar() {
   _w=$2
-  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
+  # ceiling, not rounding: any non-zero usage lights at least one cell, so a
+  # live meter never renders as an empty bar. Only a true 0 shows empty.
+  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{x=u/100*w; v=int(x); if(x>v)v++; if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
   _e=$((_w - _f))
   _pct=$(printf '%.0f' "$1")
   _bar=""
-  [ "$_f" -gt 0 ] && _bar=$(printf '%0.s█' $(seq 1 "$_f"))
-  [ "$_e" -gt 0 ] && _bar="${_bar}$(printf '%0.s░' $(seq 1 "$_e"))"
+  [ "$_f" -gt 0 ] && _bar=$(printf "%0.s$bar_fill" $(seq 1 "$_f"))
+  [ "$_e" -gt 0 ] && _bar="${_bar}$(printf "%0.s$bar_empty" $(seq 1 "$_e"))"
   if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
   elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
-  else _c="${3:-${esc}[32m}"; fi
+  else _c="${3:-$green}"; fi
   # a bar with its own base colour tints the percentage to match, dimmed; the plain
   # green meters keep a dim percentage so they stay visually secondary
   _p="${3:+$dim$_c}"
-  printf '%s[%s]%s %s%s%%%s' "$_c" "$_bar" "$reset" "${_p:-$dim}" "$_pct" "$reset"
+  printf '%s%s%s%s%s %s%s%%%s' "$_c" "$cap_l" "$_bar" "$cap_r" "$reset" "${_p:-$dim}" "$_pct" "$reset"
 }
 
 # tokens N -> "1M" / "1.5M" / "200k"; empty when the size is unknown
@@ -91,13 +116,15 @@ countdown() {
   else printf '%dm' "$_m"; fi
 }
 
-# meter LABEL PCT WIDTH RESETS_AT -> "5h [██░░░░] 23% 1h12m", nothing if pct empty
+# meter LABEL PCT WIDTH RESETS_AT -> "5h [⣿⣿⣀⣀⣀⣀] 23% 1h12m", nothing if pct empty
 meter() {
   [ -n "$2" ] || return
-  printf '%s%s%s %s' "$dim" "$1" "$reset" "$(bar "$2" "$3")"
+  # passing green as the base colour leaves the bar's own colours alone and
+  # tints the percentage to match the label
+  printf '%s%s%s %s' "$green" "$1" "$reset" "$(bar "$2" "$3" "$green")"
   if [ -n "$4" ]; then
     _cd=$(countdown "$4")
-    [ -n "$_cd" ] && printf ' %s%s%s' "$dim" "$_cd" "$reset"
+    [ -n "$_cd" ] && printf ' %s%s%s%s' "$dim" "$green" "$_cd" "$reset"
   fi
 }
 
