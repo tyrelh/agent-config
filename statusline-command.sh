@@ -1,17 +1,19 @@
 #!/bin/sh
 # Claude Code statusLine
-#   line 1: project, branch, dirty count, PR
-#   line 2: model, effort, context meter, rate-limit meters, plugin badges
+#   line 1: project, branch, dirty count, PR       ...  plugin badges
+#   line 2: model, effort, context meter            ...  rate-limit meters
 
 # Segment toggles. 1 shows the segment, anything else hides it. A hidden
 # segment costs nothing: its data is never fetched and its separator never
 # rendered. Hide every segment on a line and the line itself disappears.
 SHOW_PROJECT=1        # project name, git branch, dirty file count
 SHOW_PR=1             # PR number and review state
+SHOW_DIFF=1           # lines added / removed this session
 SHOW_MODEL=1          # model name and effort level
 SHOW_CONTEXT=1        # context window meter and percentage
 SHOW_SESSION_LIMIT=1  # 5-hour rate limit meter
 SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
+SHOW_MODES=1          # thinking / fast mode badges
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
 
 # Progress bar style.
@@ -51,7 +53,11 @@ eval "$(printf '%s' "$input" | jq -r '@sh "
   proj=\(.workspace.project_dir // .cwd // "")
   pr_num=\(.pr.number // "")
   pr_state=\(.pr.review_state // "")
-  pr_url=\(.pr.url // "")"')"
+  pr_url=\(.pr.url // "")
+  add=\(.cost.total_lines_added // "")
+  del=\(.cost.total_lines_removed // "")
+  thinking=\(.thinking.enabled // "")
+  fast=\(.fast_mode // "")"')"
 
 esc=$(printf '\033')
 dim="${esc}[2m"
@@ -83,6 +89,19 @@ vislen() {
 push() {
   [ -n "$1" ] || return
   acc="${acc}${acc:+$sep}$1"
+}
+
+# emit LEFT RIGHT — one line with RIGHT flush to the terminal edge. The gap
+# separates the two groups, so neither needs a trailing "·". Prints nothing
+# when both are empty.
+emit() {
+  if [ -n "$2" ]; then
+    _pad=$(( ${COLUMNS:-80} - RIGHT_MARGIN - $(vislen "$1") - $(vislen "$2") ))
+    [ "$_pad" -lt 1 ] && _pad=1
+    printf '%s%*s%s\n' "$1" "$_pad" "" "$2"
+  elif [ -n "$1" ]; then
+    printf '%s\n' "$1"
+  fi
 }
 
 # bar PCT WIDTH [BASECOLOR] -> "[⣿⣿⣿⣿⣀⣀] 37%", glyphs and caps per
@@ -139,6 +158,11 @@ meter() {
     _cd=$(countdown "$4")
     [ -n "$_cd" ] && printf ' %s%s(%s)%s' "$dim" "$cyan" "$_cd" "$reset"
   fi
+}
+
+# flag LABEL COLOR — append a bare badge to the right-hand group
+flag() {
+  badges="${badges}${badges:+ }${esc}[38;5;${2}m[${1}]${reset}"
 }
 
 # badge NAME SHORT COLOR — read the flag files the caveman/ponytail hooks
@@ -201,9 +225,27 @@ if [ "$SHOW_PR" = 1 ] && [ -n "$pr_num" ]; then
   [ -n "$pr_url" ] && _n="${esc}]8;;${pr_url}${esc}\\${_n}${esc}]8;;${esc}\\"
   push "${_pc}${_n}${reset}${pr_state:+ ${dim}${pr_state}${reset}}"
 fi
-[ -n "$acc" ] && printf '%s\n' "$acc"
+# Lines added and removed by this session, not the working tree diff — the
+# dirty count above already covers uncommitted files.
+if [ "$SHOW_DIFF" = 1 ] && [ "${add:-0}${del:-0}" != "00" ]; then
+  _d=""
+  [ "${add:-0}" -gt 0 ] && _d="${green}+${add}${reset}"
+  [ "${del:-0}" -gt 0 ] && _d="${_d}${_d:+ }${esc}[31m-${del}${reset}"
+  push "$_d"
+fi
+left=$acc
 
-# Line 2: model, context, rate limits, plugin badges
+if [ "$SHOW_MODES" = 1 ]; then
+  [ "$fast" = true ] && flag FAST 203
+  [ "$thinking" = true ] && flag THINK 147
+fi
+if [ "$SHOW_PLUGINS" = 1 ]; then
+  badge caveman CAVE 172
+  badge ponytail PONY 108
+fi
+emit "$left" "$badges"
+
+# Line 2: model and context on the left, rate-limit meters on the right
 acc=""
 if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
@@ -214,22 +256,11 @@ if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
   push "${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$purple")"
 fi
+left=$acc
+
+acc=""
 [ "$SHOW_SESSION_LIMIT" = 1 ] && push "$(meter 5h "$five" "$BAR_WIDTH" "$five_at")"
 [ "$SHOW_WEEKLY_LIMIT" = 1 ] && push "$(meter 7d "$seven" "$BAR_WIDTH" "$seven_at")"
-if [ "$SHOW_PLUGINS" = 1 ]; then
-  badge caveman CM 172
-  badge ponytail PT 108
-fi
-
-# Badges hug the right edge, so the gap separates them and no "·" is needed.
-# COLUMNS is set by Claude Code; tput can't read the terminal from here because
-# the script's output is captured rather than attached to the tty.
-if [ -n "$acc" ] && [ -n "$badges" ]; then
-  _pad=$(( ${COLUMNS:-80} - RIGHT_MARGIN - $(vislen "$acc") - $(vislen "$badges") ))
-  [ "$_pad" -lt 1 ] && _pad=1
-  printf '%s%*s%s\n' "$acc" "$_pad" "" "$badges"
-elif [ -n "$acc$badges" ]; then
-  printf '%s\n' "$acc$badges"
-fi
+emit "$left" "$acc"
 
 exit 0  # an empty line 2 must not look like a failed statusline
