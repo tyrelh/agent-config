@@ -6,8 +6,82 @@ Centralized configuration for AI coding agents, shared across multiple tools.
 
 ```
 agent-config/
-└── skills/          # Git subtree from Giftbit/agent-skills
+├── AGENTS.md                # Shared agent instructions
+├── claude-settings.json     # Claude Code settings
+├── statusline-command.sh    # Claude Code statusline renderer
+├── plugins/                 # Plugin defaults
+│   ├── caveman/config.json
+│   └── ponytail/config.json
+└── skills/                  # Git subtree from Giftbit/agent-skills
 ```
+
+## Symlinks
+
+Nothing in this repo is read from here directly. Each tool reads its own
+location, and those locations are symlinks pointing back into this repo, so
+edits take effect without a copy step.
+
+| Repo file | Symlinked to |
+| --- | --- |
+| `AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
+| `claude-settings.json` | `~/.claude/settings.json` |
+| `statusline-command.sh` | `~/.claude/statusline-command.sh` |
+| `skills/` | `~/.claude/skills`, `~/.codex/skills` |
+| `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
+| `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
+
+### Creating the symlinks
+
+Run from anywhere. `ln -sfn` replaces an existing link rather than nesting a
+new one inside it, which is what plain `ln -s` does when the target is already
+a directory symlink.
+
+```sh
+REPO=~/agent-config
+
+mkdir -p ~/.claude ~/.codex ~/.config/caveman ~/.config/ponytail
+
+# Claude Code
+ln -sfn "$REPO/AGENTS.md"              ~/.claude/CLAUDE.md
+ln -sfn "$REPO/claude-settings.json"   ~/.claude/settings.json
+ln -sfn "$REPO/statusline-command.sh"  ~/.claude/statusline-command.sh
+ln -sfn "$REPO/skills"                 ~/.claude/skills
+
+# Codex
+ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
+ln -sfn "$REPO/skills"                 ~/.codex/skills
+
+# Plugin defaults (caveman, ponytail)
+ln -sfn "$REPO/plugins/caveman/config.json"   ~/.config/caveman/config.json
+ln -sfn "$REPO/plugins/ponytail/config.json"  ~/.config/ponytail/config.json
+```
+
+Move an existing real file out of the way before linking over it — `ln -sfn`
+will happily replace it and the contents are gone.
+
+### Verifying
+
+```sh
+ls -la ~/.claude ~/.codex ~/.config/caveman ~/.config/ponytail | grep -- '->'
+```
+
+### Plugin defaults
+
+`plugins/*/config.json` sets the default intensity level the caveman and
+ponytail plugins start a session at:
+
+```json
+{ "defaultMode": "full" }
+```
+
+Caveman accepts `off`, `lite`, `full`, `ultra`, `wenyan-lite`, `wenyan`,
+`wenyan-full`, `wenyan-ultra`. Ponytail accepts `off`, `lite`, `full`,
+`ultra`. Both fall back to `full` when the file is absent.
+
+A `CAVEMAN_DEFAULT_MODE` or `PONYTAIL_DEFAULT_MODE` environment variable
+outranks the file, and an explicit `/caveman lite` outranks both for that
+session. `$XDG_CONFIG_HOME`, when set, replaces `~/.config` as the directory
+each plugin looks in.
 
 ## Working with the skills subtree
 
