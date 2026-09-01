@@ -1,12 +1,11 @@
 #!/bin/sh
 # Claude Code statusLine
-#   line 1: session, project, branch, dirty count, PR  ...  plugin badges
+#   line 1: project, branch, dirty count, PR           ...  plugin badges
 #   line 2: model, effort, context meter            ...  rate-limit meters
 
 # Segment toggles. 1 shows the segment, anything else hides it. A hidden
 # segment costs nothing: its data is never fetched and its separator never
 # rendered. Hide every segment on a line and the line itself disappears.
-SHOW_SESSION=1        # session name, when one has been set
 SHOW_PROJECT=1        # project name, git branch, dirty file count
 SHOW_PR=1             # PR number and review state
 SHOW_DIFF=1           # lines added / removed this session
@@ -33,7 +32,6 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 # Segment icons. Nerd Font glyphs, so they need a patched font — set any of
 # them empty to drop that icon and its trailing space with it.
 ICON_MODEL=""    # fa-flash            U+F0E7
-ICON_SESSION=""  # fa-tag              U+F02B
 ICON_PROJECT=""  # oct-repo            U+F401
 ICON_BRANCH=""   # oct-git_branch      U+F418
 ICON_PR=""       # oct-git_pull_request U+F407
@@ -56,7 +54,6 @@ eval "$(printf '%s' "$input" | jq -r '@sh "
   five_at=\(.rate_limits.five_hour.resets_at // "")
   seven=\(.rate_limits.seven_day.used_percentage // "")
   seven_at=\(.rate_limits.seven_day.resets_at // "")
-  sess=\(.session_name // "")
   cwd=\(.workspace.current_dir // .cwd // "")
   repo=\(.workspace.repo.name // "")
   proj=\(.workspace.project_dir // .cwd // "")
@@ -192,20 +189,8 @@ badge() {
   badges="${badges}${badges:+$bsep}${esc}[38;5;${3}m${_l}${reset}"
 }
 
-# Line 1: session, project, branch, dirty count, PR
+# Line 1: project, branch, dirty count, PR
 acc=""
-# session_name is absent until the session is named with --name or /rename, or
-# an AI-generated title exists; the default "my-app-3f" handle never sets it.
-# Capped at SESSION_MAX cells so a long AI title cannot crowd out the
-# right-aligned badges; an over-long name is cut one short and marked with the
-# braille ellipsis so the trim is visible rather than looking like the name.
-SESSION_MAX=20
-if [ "$SHOW_SESSION" = 1 ] && [ -n "$sess" ]; then
-  if [ "$(printf '%s' "$sess" | wc -m)" -gt "$SESSION_MAX" ]; then
-    sess="$(printf '%s' "$sess" | cut -c1-$((SESSION_MAX - 1)))⣀"
-  fi
-  push "${dim}${ICON_SESSION:+$ICON_SESSION }${esc}[3m${sess}${reset}"
-fi
 if [ "$SHOW_PROJECT" = 1 ]; then
   # The only shelling out this script does — neither branch nor dirty state is
   # in the statusline JSON. One `status --porcelain --branch` call covers both:
@@ -231,7 +216,7 @@ if [ "$SHOW_PROJECT" = 1 ]; then
   # read as separators, so the "·" that divides unrelated segments would be noise
   _pb="${project:+${esc}[1m${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
   [ -n "$branch" ] && _pb="${_pb}${_pb:+ }${cyan}${ICON_BRANCH:+$ICON_BRANCH }${branch}${reset}"
-  push "$_pb" " "
+  push "$_pb"
   [ "$dirty" -gt 0 ] && push "${esc}[33m*${dirty}${reset}"
 fi
 
