@@ -21,7 +21,7 @@ esc=$(printf '\033')
 dim="${esc}[2m"
 reset="${esc}[0m"
 
-# bar PCT WIDTH -> "████░░ 37%", green <70, yellow >=70, red >=90
+# bar PCT WIDTH -> "[████░░] 37%", green <70, yellow >=70, red >=90
 bar() {
   _w=$2
   _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
@@ -33,7 +33,7 @@ bar() {
   if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
   elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
   else _c="${esc}[32m"; fi
-  printf '%s%s%s %s%s%%%s' "$_c" "$_bar" "$reset" "$dim" "$_pct" "$reset"
+  printf '%s[%s]%s %s%s%%%s' "$_c" "$_bar" "$reset" "$dim" "$_pct" "$reset"
 }
 
 # countdown EPOCH -> "3d4h" / "2h14m" / "12m"; empty once elapsed
@@ -47,7 +47,7 @@ countdown() {
   else printf '%dm' "$_m"; fi
 }
 
-# meter LABEL PCT WIDTH RESETS_AT -> " 5h ██░░░░ 23% 1h12m", nothing if pct empty
+# meter LABEL PCT WIDTH RESETS_AT -> " 5h [██░░░░] 23% 1h12m", nothing if pct empty
 meter() {
   [ -n "$2" ] || return
   printf ' %s%s%s %s' "$dim" "$1" "$reset" "$(bar "$2" "$3")"
@@ -71,7 +71,7 @@ badge() {  # NAME SHORT COLOR
     full) _l="$2" ;;
     *) _l="$2:$_m" ;;
   esac
-  badges="${badges} ${esc}[38;5;${3}m${_l}${reset}"
+  badges="${badges} ${esc}[38;5;${3}m[${_l}]${reset}"
 }
 badge caveman CM 172
 badge ponytail PT 108
