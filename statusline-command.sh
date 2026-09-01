@@ -20,8 +20,12 @@ eval "$(printf '%s' "$input" | jq -r '
 esc=$(printf '\033')
 dim="${esc}[2m"
 reset="${esc}[0m"
+purple="${esc}[38;5;141m"
+sep="${dim} · ${reset}"
 
-# bar PCT WIDTH -> "[████░░] 37%", green <70, yellow >=70, red >=90
+# bar PCT WIDTH [BASECOLOR] -> "[████░░] 37%". Warn thresholds always
+# override the base colour, so a recoloured bar keeps its yellow at 70% and
+# its red at 90%. Default base colour is green.
 bar() {
   _w=$2
   _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
@@ -32,8 +36,11 @@ bar() {
   [ "$_e" -gt 0 ] && _bar="${_bar}$(printf '%0.s░' $(seq 1 "$_e"))"
   if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
   elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
-  else _c="${esc}[32m"; fi
-  printf '%s[%s]%s %s%s%%%s' "$_c" "$_bar" "$reset" "$dim" "$_pct" "$reset"
+  else _c="${3:-${esc}[32m}"; fi
+  # a bar with its own base colour tints the percentage to match, dimmed; the plain
+  # green meters keep a dim percentage so they stay visually secondary
+  _p="${3:+$dim$_c}"
+  printf '%s[%s]%s %s%s%%%s' "$_c" "$_bar" "$reset" "${_p:-$dim}" "$_pct" "$reset"
 }
 
 # countdown EPOCH -> "3d4h" / "2h14m" / "12m"; empty once elapsed
@@ -50,7 +57,7 @@ countdown() {
 # meter LABEL PCT WIDTH RESETS_AT -> " 5h [██░░░░] 23% 1h12m", nothing if pct empty
 meter() {
   [ -n "$2" ] || return
-  printf ' %s%s%s %s' "$dim" "$1" "$reset" "$(bar "$2" "$3")"
+  printf '%s%s%s%s %s' "$sep" "$dim" "$1" "$reset" "$(bar "$2" "$3")"
   if [ -n "$4" ]; then
     _cd=$(countdown "$4")
     [ -n "$_cd" ] && printf ' %s%s%s' "$dim" "$_cd" "$reset"
@@ -71,12 +78,12 @@ badge() {  # NAME SHORT COLOR
     full) _l="$2" ;;
     *) _l="$2:$_m" ;;
   esac
-  badges="${badges} ${esc}[38;5;${3}m[${_l}]${reset}"
+  badges="${badges}${badges:+ }${esc}[38;5;${3}m[${_l}]${reset}"
 }
 badge caveman CM 172
 badge ponytail PT 108
 
-printf '%s%s%s%s %s' "$dim" "$model" "$effort" "$reset" "$(bar "${used:-0}" 10)"
+printf '%s%s%s%s%s%s%s' "$purple" "$model" "$dim" "$effort" "$reset" "$sep" "$(bar "${used:-0}" 10 "$purple")"
 meter 5h "$five" 6 "$five_at"
 meter 7d "$seven" 6 "$seven_at"
-printf '%s\n' "$badges"
+printf '%s\n' "${badges:+$sep$badges}"
