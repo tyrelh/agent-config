@@ -4,7 +4,11 @@
 input=$(cat)
 
 model=$(printf '%s' "$input" | jq -r '.model.display_name')
+model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
 used=$(printf '%s' "$input" | jq -r '.context_window.used_percentage // empty')
+# effort absent when model doesn't support the reasoning effort param
+effort=$(printf '%s' "$input" | jq -r '.effort.level // empty')
+[ -n "$effort" ] && effort=" $effort"
 
 # Plugin mode badges (caveman, ponytail). Each script prints a bare badge or
 # nothing if its flag file is absent. ponytail: hardcoded plugin paths, revisit
@@ -47,4 +51,4 @@ fi
 dim=$(printf '\033[2m')
 reset=$(printf '\033[0m')
 
-printf '%s\n' "${dim}${model}${reset} ${color}[${bar}]${reset} ${dim}${pct}%${reset}${badges}"
+printf '%s\n' "${dim}${model}${effort}${reset} ${color}[${bar}]${reset} ${dim}${pct}%${reset}${badges}"
