@@ -30,6 +30,13 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #             dash    ▰▰▰----
 #             shade   ▓▓▓▓▒▒▒▒▒▒
 #             circles ●●●●○○○○○○
+# Segment icons. Nerd Font glyphs, so they need a patched font — set any of
+# them empty to drop that icon and its trailing space with it.
+ICON_MODEL=""    # fa-flash            U+F0E7
+ICON_SESSION=""  # fa-tag              U+F02B
+ICON_PROJECT=""  # oct-repo            U+F401
+ICON_BRANCH=""   # oct-git_branch      U+F418
+ICON_PR=""       # oct-git_pull_request U+F407
 RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
@@ -67,7 +74,7 @@ reset="${esc}[0m"
 purple="${esc}[38;5;141m"
 green="${esc}[32m"
 cyan="${esc}[36m"
-sep="${dim} · ${reset}"
+sep="  "  # segments divide on whitespace; the icons carry the grouping
 bsep="${dim}/${reset}"  # between badges, tighter than the segment separator
 
 case "$BAR_STYLE" in
@@ -91,7 +98,7 @@ vislen() {
 # that actually rendered, so toggles never leave a stray delimiter behind.
 push() {
   [ -n "$1" ] || return
-  acc="${acc}${acc:+$sep}$1"
+  acc="${acc}${acc:+${2:-$sep}}$1"
 }
 
 # emit LEFT RIGHT — one line with RIGHT flush to the terminal edge. The gap
@@ -197,7 +204,7 @@ if [ "$SHOW_SESSION" = 1 ] && [ -n "$sess" ]; then
   if [ "$(printf '%s' "$sess" | wc -m)" -gt "$SESSION_MAX" ]; then
     sess="$(printf '%s' "$sess" | cut -c1-$((SESSION_MAX - 1)))⣀"
   fi
-  push "${dim}${esc}[3m${sess}${reset}"
+  push "${dim}${ICON_SESSION:+$ICON_SESSION }${esc}[3m${sess}${reset}"
 fi
 if [ "$SHOW_PROJECT" = 1 ]; then
   # The only shelling out this script does — neither branch nor dirty state is
@@ -220,11 +227,11 @@ if [ "$SHOW_PROJECT" = 1 ]; then
   fi
   # repo name when there's an origin remote, else the launch directory's name
   project="${repo:-${proj##*/}}"
-  # project and branch join with a slash into one segment — a path-like pair
-  # reads differently from the "·" that divides unrelated segments
-  _pb="${project:+${esc}[1m${project}${reset}}"
-  [ -n "$branch" ] && _pb="${_pb}${_pb:+${dim}/${reset}}${cyan}${branch}${reset}"
-  push "$_pb"
+  # project and branch join on a space into one segment — their icons already
+  # read as separators, so the "·" that divides unrelated segments would be noise
+  _pb="${project:+${esc}[1m${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
+  [ -n "$branch" ] && _pb="${_pb}${_pb:+ }${cyan}${ICON_BRANCH:+$ICON_BRANCH }${branch}${reset}"
+  push "$_pb" " "
   [ "$dirty" -gt 0 ] && push "${esc}[33m*${dirty}${reset}"
 fi
 
@@ -236,7 +243,7 @@ if [ "$SHOW_PR" = 1 ] && [ -n "$pr_num" ]; then
     *) _pc="$dim" ;;
   esac
   # OSC 8 makes the number clickable in iTerm2, Kitty, and WezTerm
-  _n="#${pr_num}"
+  _n="${ICON_PR:+$ICON_PR }#${pr_num}"
   [ -n "$pr_url" ] && _n="${esc}]8;;${pr_url}${esc}\\${_n}${esc}]8;;${esc}\\"
   push "${_pc}${_n}${reset}${pr_state:+ ${dim}${pr_state}${reset}}"
 fi
@@ -265,7 +272,7 @@ acc=""
 if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
   # effort absent when the model doesn't support the reasoning effort param
-  push "${purple}${model}${dim}${effort:+ $effort}${reset}"
+  push "${purple}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
 fi
 if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
