@@ -9,13 +9,21 @@ model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
 effort=$(printf '%s' "$input" | jq -r '.effort.level // empty')
 [ -n "$effort" ] && effort=" $effort"
 
-# rate_limits absent on API-key/Bedrock accounts; empty => meter not rendered
-eval "$(printf '%s' "$input" | jq -r '
-  "used=\(.context_window.used_percentage // "")
-   five=\(.rate_limits.five_hour.used_percentage // "")
-   five_at=\(.rate_limits.five_hour.resets_at // "")
-   seven=\(.rate_limits.seven_day.used_percentage // "")
-   seven_at=\(.rate_limits.seven_day.resets_at // "")"')"
+# rate_limits absent on API-key/Bedrock accounts, pr absent outside a repo or
+# until one is found; empty => that segment isn't rendered. @sh quotes every
+# value, so a path or URL holding shell metacharacters can't break the eval.
+eval "$(printf '%s' "$input" | jq -r '@sh "
+  used=\(.context_window.used_percentage // "")
+  five=\(.rate_limits.five_hour.used_percentage // "")
+  five_at=\(.rate_limits.five_hour.resets_at // "")
+  seven=\(.rate_limits.seven_day.used_percentage // "")
+  seven_at=\(.rate_limits.seven_day.resets_at // "")
+  cwd=\(.workspace.current_dir // .cwd // "")
+  repo=\(.workspace.repo.name // "")
+  proj=\(.workspace.project_dir // .cwd // "")
+  pr_num=\(.pr.number // "")
+  pr_state=\(.pr.review_state // "")
+  pr_url=\(.pr.url // "")"')"
 
 esc=$(printf '\033')
 dim="${esc}[2m"
@@ -83,6 +91,46 @@ badge() {  # NAME SHORT COLOR
 badge caveman CM 172
 badge ponytail PT 108
 
+# First line: project, branch, dirty count, PR. The only shelling out this
+# script does — neither branch nor dirty state is in the statusline JSON.
+# One `status --porcelain --branch` call covers both: line 1 is the branch
+# header, the rest are changed files. Header reads "## HEAD (no branch)" on a
+# detached HEAD, and origin's name only appears after "...".
+branch=""
+dirty=0
+if [ -n "$cwd" ]; then
+  _st=$(git -C "$cwd" status --porcelain --branch 2>/dev/null)
+  if [ -n "$_st" ]; then
+    _hdr=${_st%%"
+"*}
+    branch=${_hdr#\#\# }
+    branch=${branch%%...*}
+    case "$branch" in *"no branch"*) branch="" ;; esac
+    dirty=$(($(printf '%s\n' "$_st" | wc -l) - 1))
+  fi
+fi
+
+# repo name when there's an origin remote, else the launch directory's name
+project="${repo:-${proj##*/}}"
+
+gitline="${project:+${esc}[1m${project}${reset}}"
+gitline="${gitline}${branch:+${gitline:+$sep}${esc}[36m${branch}${reset}}"
+[ "$dirty" -gt 0 ] && gitline="${gitline}${gitline:+$sep}${esc}[33m*${dirty}${reset}"
+if [ -n "$pr_num" ]; then
+  case "$pr_state" in
+    approved) _pc="${esc}[32m" ;;
+    changes_requested) _pc="${esc}[31m" ;;
+    pending) _pc="${esc}[33m" ;;
+    *) _pc="$dim" ;;
+  esac
+  # OSC 8 makes the number clickable in iTerm2, Kitty, and WezTerm
+  _n="#${pr_num}"
+  [ -n "$pr_url" ] && _n="${esc}]8;;${pr_url}${esc}\\${_n}${esc}]8;;${esc}\\"
+  gitline="${gitline}${gitline:+$sep}${_pc}${_n}${reset}${pr_state:+ ${dim}${pr_state}${reset}}"
+fi
+[ -n "$gitline" ] && printf '%s\n' "$gitline"
+
+# Second line: model, meters, plugin badges
 printf '%s%s%s%s%s%s%s' "$purple" "$model" "$dim" "$effort" "$reset" "$sep" "$(bar "${used:-0}" 10 "$purple")"
 meter 5h "$five" 6 "$five_at"
 meter 7d "$seven" 6 "$seven_at"
