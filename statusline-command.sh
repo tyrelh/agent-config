@@ -15,6 +15,7 @@ SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
 
 # Progress bar style.
+#   BAR_WIDTH cells per bar, all three meters share it
 #   BAR_CAPS  1 wraps each bar in [ ], 0 renders it bare
 #   BAR_STYLE block   ████░░░░░░
 #             braille ⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀
@@ -22,6 +23,7 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #             dash    ▰▰▰----
 #             shade   ▓▓▓▓▒▒▒▒▒▒
 #             circles ●●●●○○○○○○
+BAR_WIDTH=5
 BAR_CAPS=0
 BAR_STYLE=braille
 
@@ -51,6 +53,7 @@ dim="${esc}[2m"
 reset="${esc}[0m"
 purple="${esc}[38;5;141m"
 green="${esc}[32m"
+cyan="${esc}[36m"
 sep="${dim} · ${reset}"
 
 case "$BAR_STYLE" in
@@ -76,9 +79,7 @@ push() {
 # its red at 90%. Default base colour is green.
 bar() {
   _w=$2
-  # ceiling, not rounding: any non-zero usage lights at least one cell, so a
-  # live meter never renders as an empty bar. Only a true 0 shows empty.
-  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{x=u/100*w; v=int(x); if(x>v)v++; if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
+  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
   _e=$((_w - _f))
   _pct=$(printf '%.0f' "$1")
   _bar=""
@@ -119,12 +120,12 @@ countdown() {
 # meter LABEL PCT WIDTH RESETS_AT -> "5h [⣿⣿⣀⣀⣀⣀] 23% 1h12m", nothing if pct empty
 meter() {
   [ -n "$2" ] || return
-  # passing green as the base colour leaves the bar's own colours alone and
-  # tints the percentage to match the label
-  printf '%s%s%s %s' "$green" "$1" "$reset" "$(bar "$2" "$3" "$green")"
+  # passing a base colour tints the percentage to match the label; the warn
+  # thresholds still override the bar itself at 70% and 90%
+  printf '%s%s%s %s' "$cyan" "$1" "$reset" "$(bar "$2" "$3" "$cyan")"
   if [ -n "$4" ]; then
     _cd=$(countdown "$4")
-    [ -n "$_cd" ] && printf ' %s%s%s%s' "$dim" "$green" "$_cd" "$reset"
+    [ -n "$_cd" ] && printf ' %s%s(%s)%s' "$dim" "$cyan" "$_cd" "$reset"
   fi
 }
 
@@ -171,7 +172,7 @@ if [ "$SHOW_PROJECT" = 1 ]; then
   # project and branch join with a slash into one segment — a path-like pair
   # reads differently from the "·" that divides unrelated segments
   _pb="${project:+${esc}[1m${project}${reset}}"
-  [ -n "$branch" ] && _pb="${_pb}${_pb:+${dim}/${reset}}${esc}[36m${branch}${reset}"
+  [ -n "$branch" ] && _pb="${_pb}${_pb:+${dim}/${reset}}${cyan}${branch}${reset}"
   push "$_pb"
   [ "$dirty" -gt 0 ] && push "${esc}[33m*${dirty}${reset}"
 fi
@@ -199,10 +200,10 @@ if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
 fi
 if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
-  push "${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" 10 "$purple")"
+  push "${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$purple")"
 fi
-[ "$SHOW_SESSION_LIMIT" = 1 ] && push "$(meter 5h "$five" 6 "$five_at")"
-[ "$SHOW_WEEKLY_LIMIT" = 1 ] && push "$(meter 7d "$seven" 6 "$seven_at")"
+[ "$SHOW_SESSION_LIMIT" = 1 ] && push "$(meter 5h "$five" "$BAR_WIDTH" "$five_at")"
+[ "$SHOW_WEEKLY_LIMIT" = 1 ] && push "$(meter 7d "$seven" "$BAR_WIDTH" "$seven_at")"
 if [ "$SHOW_PLUGINS" = 1 ]; then
   badge caveman CM 172
   badge ponytail PT 108
