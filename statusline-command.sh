@@ -15,6 +15,10 @@ SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
 
 # Progress bar style.
+#   RIGHT_MARGIN columns held back from COLUMNS when right-aligning. The
+#     statusline row is indented and reserves trailing columns, so filling the
+#     full width makes the renderer truncate the tail with an ellipsis. Raise
+#     it if the badges get clipped, lower it if they sit too far in.
 #   BAR_WIDTH cells per bar, all three meters share it
 #   BAR_CAPS  1 wraps each bar in [ ], 0 renders it bare
 #   BAR_STYLE block   ████░░░░░░
@@ -23,6 +27,7 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #             dash    ▰▰▰----
 #             shade   ▓▓▓▓▒▒▒▒▒▒
 #             circles ●●●●○○○○○○
+RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
 BAR_STYLE=braille
@@ -65,6 +70,13 @@ case "$BAR_STYLE" in
   *)     bar_fill="⣿" bar_empty="⣀" ;;  # braille, the default
 esac
 [ "$BAR_CAPS" = 1 ] && { cap_l="["; cap_r="]"; } || { cap_l=""; cap_r=""; }
+
+# vislen TEXT — printable width, ignoring SGR colours and OSC 8 hyperlinks.
+# wc -m counts characters rather than bytes, which matches cells for the block,
+# braille and box-drawing glyphs here; emoji or CJK would measure short.
+vislen() {
+  printf '%s' "$1" | sed -e "s/${esc}\[[0-9;]*m//g" -e "s/${esc}]8;;[^${esc}]*${esc}\\\\//g" | wc -m
+}
 
 # push SEGMENT — append to $acc, inserting a separator only between segments
 # that actually rendered, so toggles never leave a stray delimiter behind.
@@ -207,8 +219,17 @@ fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
   badge caveman CM 172
   badge ponytail PT 108
-  push "$badges"
 fi
-[ -n "$acc" ] && printf '%s\n' "$acc"
+
+# Badges hug the right edge, so the gap separates them and no "·" is needed.
+# COLUMNS is set by Claude Code; tput can't read the terminal from here because
+# the script's output is captured rather than attached to the tty.
+if [ -n "$acc" ] && [ -n "$badges" ]; then
+  _pad=$(( ${COLUMNS:-80} - RIGHT_MARGIN - $(vislen "$acc") - $(vislen "$badges") ))
+  [ "$_pad" -lt 1 ] && _pad=1
+  printf '%s%*s%s\n' "$acc" "$_pad" "" "$badges"
+elif [ -n "$acc$badges" ]; then
+  printf '%s\n' "$acc$badges"
+fi
 
 exit 0  # an empty line 2 must not look like a failed statusline
