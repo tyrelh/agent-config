@@ -8,7 +8,7 @@
 # rendered. Hide every segment on a line and the line itself disappears.
 SHOW_PROJECT=1        # project name, git branch, dirty file count
 SHOW_PR=1             # PR number and review state
-SHOW_DIFF=1           # lines added / removed this session
+SHOW_DIFF=0           # lines added / removed this session
 SHOW_MODEL=1          # model name and effort level
 SHOW_CONTEXT=1        # context window meter and percentage
 SHOW_SESSION_LIMIT=1  # 5-hour rate limit meter
@@ -42,6 +42,8 @@ ICON_PROJECT=""  # oct-repo            U+F401
 ICON_BRANCH=""   # oct-git_branch      U+F418
 ICON_PR=""       # oct-git_pull_request U+F407
 ICON_COST=""     # fa-usd              U+F155
+ICON_DIRTY=""   # fa-pencil           U+F040
+ICON_LIMIT=""   # fa-clock_o          U+F017
 RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
@@ -190,7 +192,7 @@ meter() {
   [ -n "$2" ] || return
   # passing a base colour tints the percentage to match the label; the warn
   # thresholds still override the bar itself at 70% and 90%
-  printf '%s%s%s %s' "$lilac" "$1" "$reset" "$(bar "$2" "$3" "$lilac")"
+  printf '%s%s%s %s' "$lilac" "${ICON_LIMIT:+$ICON_LIMIT }$1" "$reset" "$(bar "$2" "$3" "$lilac")"
   if [ -n "$4" ]; then
     _cd=$(countdown "$4")
     [ -n "$_cd" ] && printf ' %s%s(%s)%s' "$dim" "$lilac" "$_cd" "$reset"
@@ -246,8 +248,10 @@ if [ "$SHOW_PROJECT" = 1 ]; then
   # read as separators, so the "·" that divides unrelated segments would be noise
   _pb="${project:+${esc}[1m${lilac}${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
   [ -n "$branch" ] && _pb="${_pb}${_pb:+ }${teal}${ICON_BRANCH:+$ICON_BRANCH }${branch}${reset}"
+  # the dirty count belongs to the branch, so it joins on a single space rather
+  # than the wider segment separator
+  [ "$dirty" -gt 0 ] && _pb="${_pb}${_pb:+ }${esc}[33m${ICON_DIRTY:+$ICON_DIRTY }${dirty}${reset}"
   push "$_pb"
-  [ "$dirty" -gt 0 ] && push "${esc}[33m*${dirty}${reset}"
 fi
 
 if [ "$SHOW_PR" = 1 ] && [ -n "$pr_num" ]; then
@@ -276,7 +280,7 @@ _model=""
 if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
   # effort absent when the model doesn't support the reasoning effort param
-  _model="${lilac}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
+  _model="${lilac}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ ($effort)}${reset}"
 fi
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
