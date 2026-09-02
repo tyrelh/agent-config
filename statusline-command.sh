@@ -13,7 +13,7 @@ SHOW_MODEL=1          # model name and effort level
 SHOW_CONTEXT=1        # context window meter and percentage
 SHOW_SESSION_LIMIT=1  # 5-hour rate limit meter
 SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
-SHOW_MODES=1          # thinking / fast mode badges
+SHOW_MODES=1          # fast mode badge
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
 
 # Progress bar style.
@@ -67,7 +67,6 @@ eval "$(printf '%s' "$input" | jq -r '@sh "
   pr_url=\(.pr.url // "")
   add=\(.cost.total_lines_added // "")
   del=\(.cost.total_lines_removed // "")
-  thinking=\(.thinking.enabled // "")
   fast=\(.fast_mode // "")"')"
 
 esc=$(printf '\033')
@@ -272,7 +271,6 @@ left=$acc
 
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
-  [ "$thinking" = true ] && flag THINK 147
 fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
   badge caveman CAVE 172
