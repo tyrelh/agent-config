@@ -36,11 +36,12 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #     The rest are one step per cell, trading precision for their look.
 # Segment icons. Nerd Font glyphs, so they need a patched font — set any of
 # them empty to drop that icon and its trailing space with it.
-ICON_MODEL=""    # fa-flash            U+F0E7
-ICON_CONTEXT=""  # fa-tachometer       U+F0E4
+ICON_MODEL="󰧑"    # md-brain            U+F09D1
+ICON_CONTEXT=""  # fa-fill             U+EE3E
 ICON_PROJECT=""  # oct-repo            U+F401
 ICON_BRANCH=""   # oct-git_branch      U+F418
 ICON_PR=""       # oct-git_pull_request U+F407
+ICON_COST=""     # fa-usd              U+F155
 RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
@@ -273,7 +274,7 @@ left=$acc
 
 _cost=""
 if [ "$SHOW_COST" = 1 ] && [ -n "$cost" ]; then
-  _cost="${esc}[38;5;179m$(printf '$%.2f' "$cost")${reset}"
+  _cost="${esc}[38;5;179m${ICON_COST:+$ICON_COST }$(printf '%.2f' "$cost")${reset}"
 fi
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
