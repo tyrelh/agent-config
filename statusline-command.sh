@@ -44,9 +44,10 @@ ICON_PR=""       # oct-git_pull_request U+F407
 ICON_COST=""     # fa-usd              U+F155
 ICON_DIRTY=""   # fa-pencil           U+F040
 ICON_LIMIT=""   # fa-clock_o          U+F017
+ICON_PLUGIN=""  # oct-plug            U+F492
 # Longest project name or branch rendered before an ellipsis; 0 disables.
 NAME_MAX=20
-RIGHT_MARGIN=6
+RIGHT_MARGIN=4
 BAR_WIDTH=5
 BAR_CAPS=0
 BAR_STYLE=braille
@@ -296,12 +297,12 @@ if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
 fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
-  badge caveman CAVE 213
-  badge ponytail PONY 39
+  badge caveman cave 105
+  badge ponytail pony 105
 fi
 # model joins the badge group with the wider segment gap: it isn't a mode flag,
 # so the tight "/" would read as one
-emit "$left" "${_model}${_model:+${badges:+$sep}}${badges}"
+emit "$left" "${_model}${_model:+${badges:+$sep}}${badges:+${lilac}${ICON_PLUGIN:+$ICON_PLUGIN }${reset}${badges}}"
 
 # Line 2: cost and context on the left, rate-limit meters on the right
 acc=""
