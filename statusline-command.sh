@@ -44,6 +44,7 @@ ICON_PR=""       # oct-git_pull_request U+F407
 ICON_COST=""     # fa-usd              U+F155
 ICON_DIRTY=""   # fa-pencil           U+F040
 ICON_LIMIT=""   # fa-clock_o          U+F017
+ICON_PLUGIN=""  # oct-plug            U+F492
 RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
