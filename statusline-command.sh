@@ -16,7 +16,6 @@ SHOW_WEEKLY_LIMIT=1   # 7-day rate limit meter
 SHOW_COST=1           # session cost in USD
 SHOW_MODES=1          # fast mode badge
 SHOW_PLUGINS=1        # caveman / ponytail mode badges
-SHOW_SPINNER=1        # braille frame that advances each refresh
 
 # Progress bar style.
 #   RIGHT_MARGIN columns held back from COLUMNS when right-aligning. The
@@ -222,12 +221,6 @@ badge() {
   badges="${badges}${badges:+$bsep}${esc}[38;5;${3}m${_l}${reset}"
 }
 
-# SPINNER_FRAMES cycles one frame per SPINNER_SECONDS of wall clock. The script
-# has no state between runs, so the frame comes from the clock rather than a
-# counter — it only visibly advances as fast as statusLine.refreshInterval polls.
-SPINNER_FRAMES="⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏"
-SPINNER_SECONDS=1
-
 # Line 1: project, branch, dirty count, PR
 acc=""
 if [ "$SHOW_PROJECT" = 1 ]; then
@@ -289,24 +282,21 @@ if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   # effort absent when the model doesn't support the reasoning effort param
   _model="${lilac}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ ($effort)}${reset}"
 fi
-_spin=""
-if [ "$SHOW_SPINNER" = 1 ]; then
-  set -- $SPINNER_FRAMES
-  shift "$(( $(date +%s) / SPINNER_SECONDS % $# ))"
-  _spin="${dim}${lilac}$1${reset}"
-fi
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
 fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
-  badge caveman CAVE 213
-  badge ponytail PONY 39
+  # build the plugin badges on their own so one plug icon can front the group
+  _pre="$badges" badges=""
+  badge caveman CAVE 105
+  badge ponytail PONY 105
+  [ -n "$badges" ] && badges="${lilac}${ICON_PLUGIN:+$ICON_PLUGIN }${reset}${badges}"
+  badges="${_pre}${_pre:+${badges:+$bsep}}${badges}"
 fi
-# model and spinner join the badge group with the wider segment gap: neither is
-# a mode flag, so the tight "/" would read as one
+# model joins the badge group with the wider segment gap: it is not a mode
+# flag, so the tight "/" would read as one
 acc=""
 push "$_model"
-push "$_spin"
 push "$badges"
 emit "$left" "$acc"
 
