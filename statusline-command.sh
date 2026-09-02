@@ -44,6 +44,8 @@ ICON_PR=""       # oct-git_pull_request U+F407
 ICON_COST=""     # fa-usd              U+F155
 ICON_DIRTY=""   # fa-pencil           U+F040
 ICON_LIMIT=""   # fa-clock_o          U+F017
+# Longest project name or branch rendered before an ellipsis; 0 disables.
+NAME_MAX=20
 RIGHT_MARGIN=6
 BAR_WIDTH=5
 BAR_CAPS=0
@@ -105,6 +107,13 @@ esac
 # braille and box-drawing glyphs here; emoji or CJK would measure short.
 vislen() {
   printf '%s' "$1" | sed -e "s/${esc}\[[0-9;]*m//g" -e "s/${esc}]8;;[^${esc}]*${esc}\\\\//g" | wc -m
+}
+
+# trunc TEXT MAX -> TEXT, or its first MAX-1 characters with an ellipsis. awk
+# counts characters rather than bytes, so a non-ASCII branch name cuts cleanly.
+trunc() {
+  { [ "$2" -gt 0 ] && [ -n "$1" ]; } || { printf '%s' "$1"; return; }
+  awk -v s="$1" -v n="$2" 'BEGIN{ print (length(s) > n) ? substr(s, 1, n - 1) "…" : s }'
 }
 
 # push SEGMENT — append to $acc, inserting a separator only between segments
@@ -243,7 +252,8 @@ if [ "$SHOW_PROJECT" = 1 ]; then
     fi
   fi
   # repo name when there's an origin remote, else the launch directory's name
-  project="${repo:-${proj##*/}}"
+  project=$(trunc "${repo:-${proj##*/}}" "$NAME_MAX")
+  branch=$(trunc "$branch" "$NAME_MAX")
   # project and branch join on a space into one segment — their icons already
   # read as separators, so the "·" that divides unrelated segments would be noise
   _pb="${project:+${esc}[1m${lilac}${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
