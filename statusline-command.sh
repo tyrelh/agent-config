@@ -24,11 +24,15 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #   BAR_WIDTH cells per bar, all three meters share it
 #   BAR_CAPS  1 wraps each bar in [ ], 0 renders it bare
 #   BAR_STYLE block   ████░░░░░░
-#             braille ⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀
+#             braille ⣿⣿⣇⣀⣀⣀⣀⣀⣀⣀
 #             pips    ▰▰▱▱▱
 #             dash    ▰▰▰----
 #             shade   ▓▓▓▓▒▒▒▒▒▒
 #             circles ●●●●○○○○○○
+#     braille is the one style with sub-cell resolution: dots 7 and 8 are the
+#     baseline rail, leaving six dots per cell to fill a pip at a time, so the
+#     bar carries BAR_WIDTH*6 steps. Every other style is one step per cell, so
+#     they trade 30 steps of precision for their look.
 # Segment icons. Nerd Font glyphs, so they need a patched font — set any of
 # them empty to drop that icon and its trailing space with it.
 ICON_MODEL=""    # fa-flash            U+F0E7
@@ -75,14 +79,20 @@ cyan="${esc}[36m"
 sep="  "  # segments divide on whitespace; the icons carry the grouping
 bsep="${dim}/${reset}"  # between badges, tighter than the segment separator
 
+# bar_ramp lists the partial glyphs between empty and full, so its length sets
+# the sub-cell resolution. Braille fills the left column bottom-to-top, then the
+# right, which reads as horizontal travel; every glyph keeps dots 7+8 so the
+# baseline rail stays unbroken across the bar.
 case "$BAR_STYLE" in
   block) bar_fill="█" bar_empty="░" ;;
   pips)  bar_fill="▰" bar_empty="▱" ;;
   dash)  bar_fill="▰" bar_empty="-" ;;
   shade) bar_fill="▓" bar_empty="▒" ;;
   circles) bar_fill="●" bar_empty="○" ;;
-  *)     bar_fill="⣿" bar_empty="⣀" ;;  # braille, the default
+  *)     bar_fill="⣿" bar_empty="⣀"    # braille, the default
+         bar_ramp="⣄ ⣆ ⣇ ⣧ ⣷" bar_steps=6 ;;  # dots 1-6; keep in sync with bar_ramp
 esac
+: "${bar_steps:=1}"  # a style without a ramp stays whole-cell
 [ "$BAR_CAPS" = 1 ] && { cap_l="["; cap_r="]"; } || { cap_l=""; cap_r=""; }
 
 # vislen TEXT — printable width, ignoring SGR colours and OSC 8 hyperlinks.
@@ -117,19 +127,35 @@ emit() {
 # override the base colour, so a recoloured bar keeps its yellow at 70% and
 # its red at 90%. Default base colour is green.
 bar() {
-  _w=$2
-  _f=$(awk -v u="$1" -v w="$_w" 'BEGIN{v=int(u/100*w+0.5); if(v>w)v=w; if(v<0)v=0; printf "%d", v}')
-  _e=$((_w - _f))
-  _pct=$(printf '%.0f' "$1")
+  # saved up front: the ramp lookup below overwrites the positional params
+  _u=$1 _w=$2 _c0=$3
+  # Counts in one pass over BAR_WIDTH*bar_steps pips. A style with a ramp clamps
+  # both ends — any progress shows a pip, and only a true 100% fills the last
+  # one, so a 99% limit meter still reads as "not at cap". Without a ramp a pip
+  # is a whole cell, and nudging it would misreport by a full 1/BAR_WIDTH.
+  _calc=$(awk -v u="$_u" -v w="$_w" -v s="$bar_steps" 'BEGIN{
+    t=w*s; v=int(u/100*t+0.5); if(v>t)v=t; if(v<0)v=0
+    if(s>1){ if(v==0&&u>0)v=1; if(v==t&&u<100)v=t-1 }
+    printf "%d %d %d", int(v/s), v%s, w-int(v/s)-(v%s>0)}')
+  _f=${_calc%% *}; _rest=${_calc#* }; _r=${_rest%% *}; _e=${_rest##* }
+  _pct=$(printf '%.0f' "$_u")
   _bar=""
   [ "$_f" -gt 0 ] && _bar=$(printf "%0.s$bar_fill" $(seq 1 "$_f"))
+  # the partial cell is subtracted from the empty run above, so full + partial +
+  # empty is always BAR_WIDTH and the printable width never moves
+  if [ "$_r" -gt 0 ]; then
+    set -- $bar_ramp
+    if [ "$_r" -le $# ]; then shift "$((_r - 1))"; _g=$1
+    else _g=$bar_fill; fi  # ramp shorter than bar_steps: degrade, don't blank the cell
+    _bar="${_bar}${_g}"
+  fi
   [ "$_e" -gt 0 ] && _bar="${_bar}$(printf "%0.s$bar_empty" $(seq 1 "$_e"))"
   if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
   elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
-  else _c="${3:-$green}"; fi
+  else _c="${_c0:-$green}"; fi
   # a bar with its own base colour tints the percentage to match, dimmed; the plain
   # green meters keep a dim percentage so they stay visually secondary
-  _p="${3:+$dim$_c}"
+  _p="${_c0:+$dim$_c}"
   printf '%s%s%s%s%s %s%s%%%s' "$_c" "$cap_l" "$_bar" "$cap_r" "$reset" "${_p:-$dim}" "$_pct" "$reset"
 }
 
