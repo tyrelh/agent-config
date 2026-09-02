@@ -9,6 +9,7 @@ agent-config/
 ├── AGENTS.md                # Shared agent instructions
 ├── claude-settings.json     # Claude Code settings
 ├── statusline-command.sh    # Claude Code statusline renderer
+├── agents/                  # Claude Code subagents
 ├── plugins/                 # Plugin defaults
 │   ├── caveman/config.json
 │   └── ponytail/config.json
@@ -27,6 +28,7 @@ edits take effect without a copy step.
 | `claude-settings.json` | `~/.claude/settings.json` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
 | `skills/` | `~/.claude/skills`, `~/.codex/skills` |
+| `agents/` | `~/.claude/agents` |
 | `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
 | `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
 
@@ -46,6 +48,7 @@ ln -sfn "$REPO/AGENTS.md"              ~/.claude/CLAUDE.md
 ln -sfn "$REPO/claude-settings.json"   ~/.claude/settings.json
 ln -sfn "$REPO/statusline-command.sh"  ~/.claude/statusline-command.sh
 ln -sfn "$REPO/skills"                 ~/.claude/skills
+ln -sfn "$REPO/agents"                 ~/.claude/agents
 
 # Codex
 ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
