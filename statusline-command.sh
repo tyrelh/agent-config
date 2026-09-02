@@ -75,11 +75,11 @@ eval "$(printf '%s' "$input" | jq -r '@sh "
 esc=$(printf '\033')
 dim="${esc}[2m"
 reset="${esc}[0m"
-purple="${esc}[38;5;141m"
+lilac="${esc}[38;5;105m"
+teal="${esc}[38;5;37m"
 green="${esc}[32m"
-cyan="${esc}[36m"
 sep="  "  # segments divide on whitespace; the icons carry the grouping
-bsep="${dim}/${reset}"  # between badges, tighter than the segment separator
+bsep="${dim}${lilac}/${reset}"  # between badges, tighter than the segment separator
 
 # bar_ramp lists the partial glyphs between empty and full, so its length sets
 # the sub-cell resolution. Braille fills the left column bottom-to-top, then the
@@ -153,7 +153,7 @@ bar() {
     _bar="${_bar}${_g}"
   fi
   [ "$_e" -gt 0 ] && _bar="${_bar}$(printf "%0.s$bar_empty" $(seq 1 "$_e"))"
-  if [ "$_pct" -ge 90 ]; then _c="${esc}[31m"
+  if [ "$_pct" -ge 90 ]; then _c="${esc}[38;5;203m"
   elif [ "$_pct" -ge 70 ]; then _c="${esc}[33m"
   else _c="${_c0:-$green}"; fi
   # a bar with its own base colour tints the percentage to match, dimmed; the plain
@@ -190,10 +190,10 @@ meter() {
   [ -n "$2" ] || return
   # passing a base colour tints the percentage to match the label; the warn
   # thresholds still override the bar itself at 70% and 90%
-  printf '%s%s%s %s' "$cyan" "$1" "$reset" "$(bar "$2" "$3" "$cyan")"
+  printf '%s%s%s %s' "$lilac" "$1" "$reset" "$(bar "$2" "$3" "$lilac")"
   if [ -n "$4" ]; then
     _cd=$(countdown "$4")
-    [ -n "$_cd" ] && printf ' %s%s(%s)%s' "$dim" "$cyan" "$_cd" "$reset"
+    [ -n "$_cd" ] && printf ' %s%s(%s)%s' "$dim" "$lilac" "$_cd" "$reset"
   fi
 }
 
@@ -244,8 +244,8 @@ if [ "$SHOW_PROJECT" = 1 ]; then
   project="${repo:-${proj##*/}}"
   # project and branch join on a space into one segment — their icons already
   # read as separators, so the "·" that divides unrelated segments would be noise
-  _pb="${project:+${esc}[1m${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
-  [ -n "$branch" ] && _pb="${_pb}${_pb:+ }${cyan}${ICON_BRANCH:+$ICON_BRANCH }${branch}${reset}"
+  _pb="${project:+${esc}[1m${lilac}${ICON_PROJECT:+$ICON_PROJECT }${project}${reset}}"
+  [ -n "$branch" ] && _pb="${_pb}${_pb:+ }${teal}${ICON_BRANCH:+$ICON_BRANCH }${branch}${reset}"
   push "$_pb"
   [ "$dirty" -gt 0 ] && push "${esc}[33m*${dirty}${reset}"
 fi
@@ -276,14 +276,14 @@ _model=""
 if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
   model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
   # effort absent when the model doesn't support the reasoning effort param
-  _model="${purple}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
+  _model="${lilac}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
 fi
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
 fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
-  badge caveman CAVE 172
-  badge ponytail PONY 108
+  badge caveman CAVE 213
+  badge ponytail PONY 39
 fi
 # model joins the badge group with the wider segment gap: it isn't a mode flag,
 # so the tight "/" would read as one
@@ -292,11 +292,11 @@ emit "$left" "${_model}${_model:+${badges:+$sep}}${badges}"
 # Line 2: cost and context on the left, rate-limit meters on the right
 acc=""
 if [ "$SHOW_COST" = 1 ] && [ -n "$cost" ]; then
-  push "${esc}[38;5;179m${ICON_COST:+$ICON_COST }$(printf '%.2f' "$cost")${reset}"
+  push "${green}${ICON_COST:+$ICON_COST }$(printf '%.2f' "$cost")${reset}"
 fi
 if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
-  push "${ICON_CONTEXT:+${purple}${ICON_CONTEXT}${reset} }${_cs:+${dim}${purple}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$purple")"
+  push "${ICON_CONTEXT:+${lilac}${ICON_CONTEXT}${reset} }${_cs:+${dim}${lilac}${_cs}${reset} }$(bar "${used:-0}" "$BAR_WIDTH" "$lilac")"
 fi
 left=$acc
 
