@@ -23,16 +23,16 @@ SHOW_PLUGINS=1        # caveman / ponytail mode badges
 #     it if the badges get clipped, lower it if they sit too far in.
 #   BAR_WIDTH cells per bar, all three meters share it
 #   BAR_CAPS  1 wraps each bar in [ ], 0 renders it bare
-#   BAR_STYLE block   ████░░░░░░
+#   BAR_STYLE block   ████▓░░░░░
 #             braille ⣿⣿⣇⣀⣀⣀⣀⣀⣀⣀
 #             pips    ▰▰▱▱▱
 #             dash    ▰▰▰----
 #             shade   ▓▓▓▓▒▒▒▒▒▒
 #             circles ●●●●○○○○○○
-#     braille is the one style with sub-cell resolution: dots 7 and 8 are the
-#     baseline rail, leaving six dots per cell to fill a pip at a time, so the
-#     bar carries BAR_WIDTH*6 steps. Every other style is one step per cell, so
-#     they trade 30 steps of precision for their look.
+#     braille and block resolve below the cell. Braille spends dots 7+8 on a
+#     baseline rail and fills the other six a pip at a time, so the bar carries
+#     BAR_WIDTH*6 steps; block steps one cell through ░▒▓█ for BAR_WIDTH*3.
+#     The rest are one step per cell, trading precision for their look.
 # Segment icons. Nerd Font glyphs, so they need a patched font — set any of
 # them empty to drop that icon and its trailing space with it.
 ICON_MODEL=""    # fa-flash            U+F0E7
@@ -84,7 +84,8 @@ bsep="${dim}/${reset}"  # between badges, tighter than the segment separator
 # right, which reads as horizontal travel; every glyph keeps dots 7+8 so the
 # baseline rail stays unbroken across the bar.
 case "$BAR_STYLE" in
-  block) bar_fill="█" bar_empty="░" ;;
+  block) bar_fill="█" bar_empty="░"
+         bar_ramp="▒ ▓" bar_steps=3 ;;  # density, not width: the track never breaks
   pips)  bar_fill="▰" bar_empty="▱" ;;
   dash)  bar_fill="▰" bar_empty="-" ;;
   shade) bar_fill="▓" bar_empty="▒" ;;
