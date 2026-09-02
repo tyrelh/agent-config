@@ -1,7 +1,7 @@
 #!/bin/sh
 # Claude Code statusLine
-#   line 1: project, branch, dirty count, PR      ...  cost, plugin badges
-#   line 2: model, effort, context meter            ...  rate-limit meters
+#   line 1: project, branch, dirty count, PR      ...  model, effort, plugin badges
+#   line 2: cost, context meter                     ...  rate-limit meters
 
 # Segment toggles. 1 shows the segment, anything else hides it. A hidden
 # segment costs nothing: its data is never fetched and its separator never
@@ -272,9 +272,11 @@ if [ "$SHOW_DIFF" = 1 ] && [ "${add:-0}${del:-0}" != "00" ]; then
 fi
 left=$acc
 
-_cost=""
-if [ "$SHOW_COST" = 1 ] && [ -n "$cost" ]; then
-  _cost="${esc}[38;5;179m${ICON_COST:+$ICON_COST }$(printf '%.2f' "$cost")${reset}"
+_model=""
+if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
+  model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
+  # effort absent when the model doesn't support the reasoning effort param
+  _model="${purple}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
 fi
 if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
@@ -283,16 +285,14 @@ if [ "$SHOW_PLUGINS" = 1 ]; then
   badge caveman CAVE 172
   badge ponytail PONY 108
 fi
-# cost joins the badge group with the wider segment gap: it isn't a mode flag,
+# model joins the badge group with the wider segment gap: it isn't a mode flag,
 # so the tight "/" would read as one
-emit "$left" "${_cost}${_cost:+${badges:+$sep}}${badges}"
+emit "$left" "${_model}${_model:+${badges:+$sep}}${badges}"
 
-# Line 2: model and context on the left, rate-limit meters on the right
+# Line 2: cost and context on the left, rate-limit meters on the right
 acc=""
-if [ "$SHOW_MODEL" = 1 ] && [ -n "$model" ]; then
-  model=${model% (*)}  # drop trailing variant suffix, e.g. " (1M context)"
-  # effort absent when the model doesn't support the reasoning effort param
-  push "${purple}${ICON_MODEL:+$ICON_MODEL }${model}${dim}${effort:+ $effort}${reset}"
+if [ "$SHOW_COST" = 1 ] && [ -n "$cost" ]; then
+  push "${esc}[38;5;179m${ICON_COST:+$ICON_COST }$(printf '%.2f' "$cost")${reset}"
 fi
 if [ "$SHOW_CONTEXT" = 1 ]; then
   _cs=$(tokens "$ctx_size")
