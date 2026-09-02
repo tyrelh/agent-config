@@ -25,9 +25,16 @@
     ],
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "sh /Users/tyrel/.claude/statusline-command.sh",
+    "refreshInterval": 120
+  },
   "enabledPlugins": {
     "caveman@caveman": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "coderabbit@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -41,15 +48,15 @@
         "source": "git",
         "url": "https://github.com/DietrichGebert/ponytail.git"
       }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
     }
   },
   "effortLevel": "xhigh",
   "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true,
-  "model": "opus[1m]",
-  "statusLine": {
-    "type": "command",
-    "command": "sh /Users/tyrel/.claude/statusline-command.sh",
-    "refreshInterval": 120
-  }
+  "skipDangerousModePermissionPrompt": true
 }

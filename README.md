@@ -68,6 +68,28 @@ will happily replace it and the contents are gone.
 ls -la ~/.claude ~/.codex ~/.config/caveman ~/.config/ponytail | grep -- '->'
 ```
 
+### Installing the plugins
+
+`enabledPlugins` in `claude-settings.json` only says which plugins *should* be
+on; it does not fetch them. Claude Code refuses to load an enabled plugin whose
+files aren't on disk and prints the `claude plugin install` command instead. So
+on a fresh machine, register the marketplaces and install the plugins from the
+same file that lists them:
+
+```sh
+REPO=~/agent-config
+
+jq -r '.extraKnownMarketplaces[].source | .repo // .url' "$REPO/claude-settings.json" \
+  | xargs -n1 claude plugin marketplace add
+
+jq -r '.enabledPlugins | keys[]' "$REPO/claude-settings.json" \
+  | xargs -n1 claude plugin install
+```
+
+Both loops are idempotent, so re-run them after adding a plugin on another
+machine and pulling. Order matters: a plugin install fails until its
+marketplace is on disk.
+
 ### Plugin defaults
 
 `plugins/*/config.json` sets the default intensity level the caveman and
