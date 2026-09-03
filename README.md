@@ -13,7 +13,9 @@ agent-config/
 ├── plugins/                 # Plugin defaults
 │   ├── caveman/config.json
 │   └── ponytail/config.json
-└── work-skills/             # Git subtree from Giftbit/agent-skills
+├── skills/                  # Personal skills
+├── work-skills/             # Git subtree from Giftbit/agent-skills
+└── skill-link.sh            # Links both skill dirs into ~/.claude/skills
 ```
 
 ## Symlinks
@@ -27,7 +29,7 @@ edits take effect without a copy step.
 | `AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
 | `claude-settings.json` | `~/.claude/settings.json` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
-| `work-skills/` | `~/.claude/skills`, `~/.codex/skills` |
+| `skills/*`, `work-skills/*` | one symlink per skill inside `~/.claude/skills` (see `skill-link.sh`) |
 | `agents/` | `~/.claude/agents` |
 | `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
 | `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
@@ -47,12 +49,10 @@ mkdir -p ~/.claude ~/.codex ~/.config/caveman ~/.config/ponytail
 ln -sfn "$REPO/AGENTS.md"              ~/.claude/CLAUDE.md
 ln -sfn "$REPO/claude-settings.json"   ~/.claude/settings.json
 ln -sfn "$REPO/statusline-command.sh"  ~/.claude/statusline-command.sh
-ln -sfn "$REPO/work-skills"            ~/.claude/skills
 ln -sfn "$REPO/agents"                 ~/.claude/agents
 
 # Codex
 ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
-ln -sfn "$REPO/work-skills"            ~/.codex/skills
 
 # Plugin defaults (caveman, ponytail)
 ln -sfn "$REPO/plugins/caveman/config.json"   ~/.config/caveman/config.json
@@ -61,6 +61,21 @@ ln -sfn "$REPO/plugins/ponytail/config.json"  ~/.config/ponytail/config.json
 
 Move an existing real file out of the way before linking over it — `ln -sfn`
 will happily replace it and the contents are gone.
+
+### Skill symlinks
+
+Skills come from two places — `work-skills/` (the Giftbit subtree) and
+`skills/` (personal) — so `~/.claude/skills` is a real directory holding one
+symlink per skill rather than a single link to one source:
+
+```sh
+~/agent-config/skill-link.sh
+```
+
+Re-run it after adding or removing a skill. It is idempotent, prunes links to
+skills that no longer exist, and leaves anything it did not create alone. On a
+name collision `skills/` wins and the work version is reported as shadowed.
+Pass a different destination as the first argument to link somewhere else.
 
 ### Verifying
 
