@@ -297,12 +297,19 @@ if [ "$SHOW_MODES" = 1 ]; then
   [ "$fast" = true ] && flag FAST 203
 fi
 if [ "$SHOW_PLUGINS" = 1 ]; then
-  badge caveman cave 105
-  badge ponytail pony 105
+  # build the plugin badges on their own so one plug icon can front the group
+  _pre="$badges" badges=""
+  badge caveman CAVE 105
+  badge ponytail PONY 105
+  [ -n "$badges" ] && badges="${lilac}${ICON_PLUGIN:+$ICON_PLUGIN }${reset}${badges}"
+  badges="${_pre}${_pre:+${badges:+$bsep}}${badges}"
 fi
-# model joins the badge group with the wider segment gap: it isn't a mode flag,
-# so the tight "/" would read as one
-emit "$left" "${_model}${_model:+${badges:+$sep}}${badges:+${lilac}${ICON_PLUGIN:+$ICON_PLUGIN }${reset}${badges}}"
+# model joins the badge group with the wider segment gap: it is not a mode
+# flag, so the tight "/" would read as one
+acc=""
+push "$_model"
+push "$badges"
+emit "$left" "$acc"
 
 # Line 2: cost and context on the left, rate-limit meters on the right
 acc=""
