@@ -1,0 +1,6 @@
+interface:
+  display_name: "GitHub PR Create"
+  short_description: "Create a GitHub PR"
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Create a GitHub PR. Create new branch if needed."
