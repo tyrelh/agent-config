@@ -249,6 +249,8 @@ if [ "$SHOW_PROJECT" = 1 ]; then
       branch=${_hdr#\#\# }
       branch=${branch%%...*}
       case "$branch" in *"no branch"*) branch="" ;; esac
+      # long branch names crowd out the rest of line 1
+      [ ${#branch} -gt 20 ] && branch="${branch:0:20}⣀"
       dirty=$(($(printf '%s\n' "$_st" | wc -l) - 1))
     fi
   fi
