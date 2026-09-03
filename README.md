@@ -13,7 +13,7 @@ agent-config/
 ├── plugins/                 # Plugin defaults
 │   ├── caveman/config.json
 │   └── ponytail/config.json
-└── skills/                  # Git subtree from Giftbit/agent-skills
+└── work-skills/             # Git subtree from Giftbit/agent-skills
 ```
 
 ## Symlinks
@@ -27,7 +27,7 @@ edits take effect without a copy step.
 | `AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
 | `claude-settings.json` | `~/.claude/settings.json` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
-| `skills/` | `~/.claude/skills`, `~/.codex/skills` |
+| `work-skills/` | `~/.claude/skills`, `~/.codex/skills` |
 | `agents/` | `~/.claude/agents` |
 | `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
 | `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
@@ -47,12 +47,12 @@ mkdir -p ~/.claude ~/.codex ~/.config/caveman ~/.config/ponytail
 ln -sfn "$REPO/AGENTS.md"              ~/.claude/CLAUDE.md
 ln -sfn "$REPO/claude-settings.json"   ~/.claude/settings.json
 ln -sfn "$REPO/statusline-command.sh"  ~/.claude/statusline-command.sh
-ln -sfn "$REPO/skills"                 ~/.claude/skills
+ln -sfn "$REPO/work-skills"            ~/.claude/skills
 ln -sfn "$REPO/agents"                 ~/.claude/agents
 
 # Codex
 ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
-ln -sfn "$REPO/skills"                 ~/.codex/skills
+ln -sfn "$REPO/work-skills"            ~/.codex/skills
 
 # Plugin defaults (caveman, ponytail)
 ln -sfn "$REPO/plugins/caveman/config.json"   ~/.config/caveman/config.json
@@ -108,23 +108,23 @@ outranks the file, and an explicit `/caveman lite` outranks both for that
 session. `$XDG_CONFIG_HOME`, when set, replaces `~/.config` as the directory
 each plugin looks in.
 
-## Working with the skills subtree
+## Working with the work-skills subtree
 
-The `skills/` directory is a [git subtree](https://www.atlassian.com/git/tutorials/git-subtree) linked to [Giftbit/agent-skills](https://github.com/Giftbit/agent-skills). All files are fully committed in this repo, so it works as a standalone clone. The subtree remote is named `agent-skills`.
+The `work-skills/` directory is a [git subtree](https://www.atlassian.com/git/tutorials/git-subtree) linked to [Giftbit/agent-skills](https://github.com/Giftbit/agent-skills). All files are fully committed in this repo, so it works as a standalone clone. The subtree remote is named `agent-skills`.
 
 ### Making changes to skills
 
-Edit files in `skills/` and commit normally:
+Edit files in `work-skills/` and commit normally:
 
 ```sh
-git add skills/
+git add work-skills/
 git commit -m "Update some skill"
 ```
 
 ### Pushing skill changes directly to Giftbit/agent-skills
 
 ```sh
-git subtree push --prefix=skills agent-skills main
+git subtree push --prefix=work-skills agent-skills main
 ```
 
 ### Pushing skill changes via PR
@@ -132,25 +132,25 @@ git subtree push --prefix=skills agent-skills main
 To push changes to a feature branch on Giftbit/agent-skills for code review:
 
 ```sh
-# 1. Edit files in skills/, commit normally in this repo
-git add skills/
+# 1. Edit files in work-skills/, commit normally in this repo
+git add work-skills/
 git commit -m "Add new skill"
 
 # 2. Push to a feature branch on Giftbit/agent-skills
-git subtree push --prefix=skills agent-skills my-feature-branch
+git subtree push --prefix=work-skills agent-skills my-feature-branch
 
 # 3. Open a PR from my-feature-branch into main on Giftbit/agent-skills
 
 # 4. After the PR is merged, pull main back into this repo
-git subtree pull --prefix=skills agent-skills main --squash
+git subtree pull --prefix=work-skills agent-skills main --squash
 ```
 
-Branches in this repo and Giftbit/agent-skills are independent — you don't need to be on a matching branch here. The subtree push rewrites commits with the `skills/` prefix stripped, so commits in Giftbit/agent-skills will have different SHAs.
+Branches in this repo and Giftbit/agent-skills are independent — you don't need to be on a matching branch here. The subtree push rewrites commits with the `work-skills/` prefix stripped, so commits in Giftbit/agent-skills will have different SHAs.
 
 ### Pulling updates from Giftbit/agent-skills
 
 ```sh
-git subtree pull --prefix=skills agent-skills main --squash
+git subtree pull --prefix=work-skills agent-skills main --squash
 ```
 
 The `--squash` flag collapses incoming changes into a single merge commit to keep this repo's history clean.
