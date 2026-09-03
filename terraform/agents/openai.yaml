@@ -1,0 +1,4 @@
+interface:
+  display_name: "Terraform (Giftbit)"
+  short_description: "Giftbit Terraform workflows and conventions"
+  default_prompt: "Use Giftbit Terraform conventions: module-first patterns, config/{env}.tfvars env config, AWS + Datadog + Stytch providers, and the self-hosted S3 backend."

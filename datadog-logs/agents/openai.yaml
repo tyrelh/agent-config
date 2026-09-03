@@ -1,0 +1,4 @@
+interface:
+  display_name: "Datadog Logs"
+  short_description: "Search, tail, aggregate, export logs"
+  default_prompt: "Use $datadog-logs to search recent error logs for a service."

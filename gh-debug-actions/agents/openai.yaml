@@ -1,0 +1,6 @@
+interface:
+  display_name: "GitHub Actions Debugger"
+  short_description: "Debug failing GitHub Actions runs and fetch logs."
+  icon_small: "./assets/github-small.svg"
+  icon_large: "./assets/github.png"
+  default_prompt: "Help debug a GitHub Actions workflow run by identifying the repo and run, fetching logs, and summarizing the root cause."
