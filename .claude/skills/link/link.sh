@@ -3,7 +3,7 @@
 # Personal skills/ wins on a name collision. Re-run after adding or removing a skill.
 set -eu
 
-REPO=$(cd "$(dirname "$0")" && pwd)
+REPO=$(cd "$(dirname "$0")/../../.." && pwd)
 DEST=${1:-$HOME/.claude/skills}
 
 # The dest used to be a symlink to a single source dir; replace it with a real one.

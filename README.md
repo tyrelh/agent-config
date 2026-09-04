@@ -16,7 +16,7 @@ agent-config/
 │   └── ponytail/config.json
 ├── skills/                  # Personal skills
 ├── work-skills/             # Git subtree from Giftbit/agent-skills
-└── skill-link.sh            # Links both skill dirs into ~/.claude/skills
+└── .claude/skills/link/     # "link" skill: links both skill dirs into ~/.claude/skills
 ```
 
 ## Symlinks
@@ -31,7 +31,7 @@ edits take effect without a copy step.
 | `claude-settings.json` | `~/.claude/settings.json` |
 | `codex-config.toml` | `~/.codex/config.toml` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
-| `skills/*`, `work-skills/*` | one symlink per skill inside `~/.claude/skills` (see `skill-link.sh`) |
+| `skills/*`, `work-skills/*` | one symlink per skill inside `~/.claude/skills` (see the `link` skill) |
 | `agents/` | `~/.claude/agents` |
 | `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
 | `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
@@ -73,8 +73,10 @@ Skills come from two places — `work-skills/` (the Giftbit subtree) and
 symlink per skill rather than a single link to one source:
 
 ```sh
-~/agent-config/skill-link.sh
+~/agent-config/.claude/skills/link/link.sh
 ```
+
+Or ask Claude Code to run the `link` skill from inside this repo.
 
 Re-run it after adding or removing a skill. It is idempotent, prunes links to
 skills that no longer exist, and leaves anything it did not create alone. On a
