@@ -19,3 +19,12 @@ manage-shortcut-stories/references/shortcut-config.md
 !git-branch/**
 !handoff/
 !handoff/**
+!dev-preferences/
+!dev-preferences/**
+dev-preferences/.local/
+dev-preferences/.local/**
+
+.DS_Store
+__pycache__/
+*.pyc
+.claude/

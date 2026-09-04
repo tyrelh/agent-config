@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Developer preferences</title>
+  <script>
+    (() => {
+      const stored = localStorage.getItem("devprefs-theme")
+      const theme = stored === "light" || stored === "dark"
+        ? stored
+        : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      document.documentElement.dataset.theme = theme
+    })()
+  </script>
+  <link rel="stylesheet" href="../dashboard/dashboard.css?v=__ASSET_VERSION__" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <div class="topbar-copy">
+        <h1>Developer preferences</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-live="polite">Dark</button>
+    </header>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="controls view-menu">
+      <span class="slabel">View</span>
+      <button data-view="rules" class="on">Rules</button>
+      <button data-view="analytics">Analytics</button>
+      <button data-view="mining">PR mining</button>
+      <button data-view="files">Local files</button>
+    </div>
+
+    <section class="view" id="rulesView">
+      <div class="controls">
+        <button data-f="all" class="on">All</button>
+        <button data-f="used">Used</button>
+        <button data-f="removed">Removed</button>
+        <span class="spacer"></span>
+        <span class="slabel">Sort</span>
+        <button data-s="added" class="on">Added date</button>
+        <button data-s="lastUsed">Last used</button>
+        <button data-s="usage">Most used</button>
+        <button data-s="order">Rule order</button>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <section class="view" id="analyticsView" hidden></section>
+    <section class="view refs" id="miningView" hidden></section>
+    <section class="view refs" id="filesView" hidden></section>
+
+    <p class="foot">
+      Generated from the selected rules file by <code>generate.py</code>. Local rules and usage data
+      live under <code>.local/</code> and are ignored by Git.
+    </p>
+  </main>
+
+  <script>
+    window.PREFERENCES_DATA = __PAYLOAD__
+  </script>
+  __SCRIPT_TAGS__
+</body>
+</html>
