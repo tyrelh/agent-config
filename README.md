@@ -8,6 +8,7 @@ Centralized configuration for AI coding agents, shared across multiple tools.
 agent-config/
 ├── AGENTS.md                # Shared agent instructions
 ├── claude-settings.json     # Claude Code settings
+├── codex-config.toml        # Codex settings
 ├── statusline-command.sh    # Claude Code statusline renderer
 ├── agents/                  # Claude Code subagents
 ├── plugins/                 # Plugin defaults
@@ -28,6 +29,7 @@ edits take effect without a copy step.
 | --- | --- |
 | `AGENTS.md` | `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` |
 | `claude-settings.json` | `~/.claude/settings.json` |
+| `codex-config.toml` | `~/.codex/config.toml` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
 | `skills/*`, `work-skills/*` | one symlink per skill inside `~/.claude/skills` (see `skill-link.sh`) |
 | `agents/` | `~/.claude/agents` |
@@ -53,6 +55,8 @@ ln -sfn "$REPO/agents"                 ~/.claude/agents
 
 # Codex
 ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
+ln -sfn "$REPO/codex-config.toml"       ~/.codex/config.toml
+ln -sfn "$REPO/skills"                 ~/.codex/skills
 
 # Plugin defaults (caveman, ponytail)
 ln -sfn "$REPO/plugins/caveman/config.json"   ~/.config/caveman/config.json

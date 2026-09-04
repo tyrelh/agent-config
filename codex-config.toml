@@ -1,0 +1,97 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+personality = "pragmatic"
+sandbox_mode = "danger-full-access"
+
+notify = ["/Users/tyrel/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+service_tier = "default"
+
+[features]
+multi_agent = true
+js_repl = false
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[projects."/Users/tyrel/Notes"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/Giftbit/giftbitapp"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/agent-config"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/.claude/jobs/0c4b72f5/tmp/smoke-ws"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/Projects/git-history-painter"]
+trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-06-24T17:40:47Z"
+source_type = "local"
+source = "/Users/tyrel/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-05-06T15:31:04Z"
+source_type = "local"
+source = "/Users/tyrel/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[desktop]
+sansFontSize = 14
+codeFontSize = 13
+usePointerCursors = true
+followUpQueueMode = "steer"
+composerEnterBehavior = "cmdIfMultiline"
+preventSleepWhileRunning = true
+keepRemoteControlAwakeWhilePluggedIn = true
+git-branch-prefix = ""
+git-pr-instructions = "When creating a pull request, the PR title should follow a pseudo conventional commit format. Namely <type>(<scope>): sc-<ticket number> <title>. If the user hasn't provided a ticket number for the proposed changes yet, please prompt them for one. All PRs should contain a ticket number in the name."
+notifications-turn-mode = "always"
+default-service-tier = "default"
+conversationDetailMode = "STEPS_EXECUTION"
+selected-avatar-id = "codex"
+
+[desktop.open-in-target-preferences]
+global = "cursor"
+
+[desktop.open-in-target-preferences.perPath]
+"/Users/tyrel/Giftbit/lightrail" = "cursor"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/tyrel/.codex"
+CODEX_HOME = "/Users/tyrel/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "5504c0782b5c86b7dd08314045b9843e973a230e1be8f7e2e0ba3716fc63c55e"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.616.81150"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+
+[notice.model_migrations]
+"gpt-5.4" = "gpt-5.6-terra"
