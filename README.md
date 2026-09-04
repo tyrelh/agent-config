@@ -11,6 +11,7 @@ agent-config/
 ├── codex-config.toml        # Codex settings
 ├── statusline-command.sh    # Claude Code statusline renderer
 ├── agents/                  # Claude Code subagents
+├── hooks/                   # Claude Code hook scripts
 ├── plugins/                 # Plugin defaults
 │   ├── caveman/config.json
 │   └── ponytail/config.json
@@ -33,6 +34,7 @@ edits take effect without a copy step.
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` |
 | `skills/*`, `work-skills/*` | one symlink per skill inside `~/.claude/skills` (see the `link` skill) |
 | `agents/` | `~/.claude/agents` |
+| `hooks/` | `~/.claude/hooks` |
 | `plugins/caveman/config.json` | `~/.config/caveman/config.json` |
 | `plugins/ponytail/config.json` | `~/.config/ponytail/config.json` |
 
@@ -52,6 +54,7 @@ ln -sfn "$REPO/AGENTS.md"              ~/.claude/CLAUDE.md
 ln -sfn "$REPO/claude-settings.json"   ~/.claude/settings.json
 ln -sfn "$REPO/statusline-command.sh"  ~/.claude/statusline-command.sh
 ln -sfn "$REPO/agents"                 ~/.claude/agents
+ln -sfn "$REPO/hooks"                  ~/.claude/hooks
 
 # Codex
 ln -sfn "$REPO/AGENTS.md"              ~/.codex/AGENTS.md
