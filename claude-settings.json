@@ -1,4 +1,11 @@
 {
+  "skillListingMaxDescChars": 2048,
+  "skillListingBudgetFraction": 0.03,
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "permissions": {
     "allow": [
       "Bash(bash /Users/tyrel/.codex/skills/*)",
@@ -25,12 +32,7 @@
     ],
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
-  "statusLine": {
-    "type": "command",
-    "command": "sh /Users/tyrel/.claude/statusline-command.sh",
-    "refreshInterval": 120
-  },
+  "model": "sonnet",
   "hooks": {
     "PostToolUse": [
       {
@@ -46,6 +48,19 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "sh /Users/tyrel/.claude/statusline-command.sh",
+    "refreshInterval": 120
+  },
+  "footerLinksRegexes": [
+    {
+      "type": "regex",
+      "pattern": "sc-(?<id>\\d{4,6})",
+      "url": "https://app.shortcut.com/giftbit/story/{id}",
+      "label": "sc-{id}"
+    }
+  ],
   "enabledPlugins": {
     "caveman@caveman": true,
     "ponytail@ponytail": true,
@@ -85,12 +100,15 @@
       "effortLevel": "medium"
     },
     "claude-opus-5": {
-      "effortLevel": "xhigh"
+      "effortLevel": "low"
     },
     "claude-sonnet-5": {
-      "effortLevel": "medium"
+      "effortLevel": "low"
     }
   },
   "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "precomputeCompactionEnabled": true,
+  "autoContinueAtUsageLimit": true,
+  "fileCheckpointingEnabled": true
 }

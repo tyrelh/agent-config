@@ -12,10 +12,6 @@ When I say "side pane" or "on the side", I mean run it in a herdr pane.
 Projects may contain configurations from other types of agents. You should read these into context.
 - .cursor/rules/*.md in the root of the project. This contains multiple rule files each with a file glob pattern in it's metadata describing which kinds of files it's applicable for.
 
-## Git Etiquette
-When using git, you should follow these conventions:
-- Never add co-author information to commits unless explicitly asked by the user.
-
 ## Skills
 A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
 ### Available skills
