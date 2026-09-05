@@ -1,5 +1,5 @@
-model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
 
@@ -56,6 +56,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/tyrel/Giftbit/centralized-agent"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/Projects/personal-agent"]
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
@@ -119,3 +122,6 @@ enabled = false
 
 [notice.model_migrations]
 "gpt-5.4" = "gpt-5.6-terra"
+
+[tui.model_availability_nux]
+gpt-6-astra = 1
