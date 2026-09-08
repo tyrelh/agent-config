@@ -23,7 +23,7 @@ USAGE
 [ $# -ge 2 ] || usage
 mode=$1 section=$2; shift 2
 
-notes=${NOTES:-$HOME/Notes}
+notes=${NOTES:-${OBSIDIAN_VAULT_PATH:-$HOME/Notes}}
 day=${TODO_DAY:-$(date +'%a %b %-d')}   # matches the H1 format: "# Fri Sep 4"
 
 shopt -s nullglob
