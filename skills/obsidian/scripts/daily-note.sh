@@ -14,7 +14,7 @@ usage:
 sections are H2 headings inside today's H1, e.g. Tasks, Notes, Meetings, Personal.
 
 env:
-  NOTES=~/Notes            vault root
+  NOTES=~/Notes   vault root
   TODO_DAY="Thu Sep 3"     target another day's section (default: today)
 USAGE
   exit 2
@@ -27,9 +27,9 @@ notes=${NOTES:-$HOME/Notes}
 day=${TODO_DAY:-$(date +'%a %b %-d')}   # matches the H1 format: "# Fri Sep 4"
 
 shopt -s nullglob
-files=("$notes"/inbox/*now*.md)
+files=("$notes"/daily/*/*now*.md)       # daily/<year>/T<n> <year> now.md
 if [ ${#files[@]} -ne 1 ]; then
-  echo "ERR: expected exactly one '*now*.md' note in $notes/inbox, found ${#files[@]}" >&2
+  echo "ERR: expected exactly one '*now*.md' note in $notes/daily/*/, found ${#files[@]}" >&2
   exit 1
 fi
 file=${files[0]}
