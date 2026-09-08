@@ -28,10 +28,10 @@ safe=$(printf '%s' "$title" | tr '/:|#^[]' '-')
 if [ ${#safe} -gt 70 ]; then safe=$(printf '%s' "${safe:0:70}" | sed 's/ [^ ]*$//'); fi
 safe=$(printf '%s' "$safe" | sed 's/ *$//')
 
-dest="$PLANS_DEST/$(date +%F) $safe.md"
+dest="$PLANS_DEST/PLAN $(date +%F) $safe.md"
 n=2
 while [ -e "$dest" ] && ! grep -qxF "source: $src" "$dest" 2>/dev/null; do
-  dest="$PLANS_DEST/$(date +%F) $safe $n.md"
+  dest="$PLANS_DEST/PLAN $(date +%F) $safe $n.md"
   n=$((n + 1))
 done
 
