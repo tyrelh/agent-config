@@ -1,30 +1,30 @@
 ---
 name: obsidian
-description: Map of Tyrel's Obsidian vault at ~/Notes — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
+description: Map of Tyrel's Obsidian vault at "~/Notes" — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
 ---
 
 # Obsidian vault
 
-Vault root: `~/Notes`. It has its own `AGENTS.md` (`~/Notes/AGENTS.md`) — read it for conventions; this skill is the operational layer on top.
+Vault root: `~/Notes`. It has its own `AGENTS.md` — read it for conventions; this skill is the operational layer on top. Paths below are relative to the vault root.
 
 ## Related skills
 
-- `obsidian-cli` — the `obsidian` CLI: search, read, tasks, properties, plugin dev. Requires Obsidian running.
 - `obsidian-markdown` — Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties.
-- `obsidian-bases` — `.base` files: views, filters, formulas.
 
 ## Layout
 
 | Path | Holds |
 |---|---|
-| `~/Notes/inbox/` | Term logs, plus any new standalone note (clearly named) |
-| `~/Notes/notes/`, `topics/`, `projects/`, `books/` | Long-lived notes |
-| `~/Notes/templates/insertable/daily note.md` | The daily note template |
-| `~/Notes/archive/` | Old material — don't write here |
+| `daily/<year>/` | Term logs (the daily notes) |
+| `inbox/` | Any new standalone note (clearly named) |
+| `notes/`, `topics/`, `projects/`, `books/` | Long-lived notes |
+| `plans/` | AI-generated plans |
+| `templates/insertable/daily note.md` | The daily note template |
+| `archive/` | Old material — don't write here |
 
 ## Term log (the running daily note)
 
-One note per term (a third of a year), in `~/Notes/inbox/`, named `T<n> <year>.md` — older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `T3 2026 now.md`. Find it with `ls ~/Notes/inbox/*now*.md`; expect exactly one match and stop if that isn't true.
+One note per term (a third of a year), in `daily/<year>/`, named `T<n> <year>.md` — older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `daily/2026/T3 2026 now.md`. Find it with `ls ~/Notes/Main\ Notes/daily/*/*now*.md`; expect exactly one match and stop if that isn't true.
 
 Structure — first H1 is persistent term notes, every H1 after it is one day, **newest first**:
 
@@ -48,7 +48,7 @@ Structure — first H1 is persistent term notes, every H1 after it is one day, *
 # Thu Sep 3            <- yesterday, and so on down to the start of the term
 ```
 
-A new day is started by inserting `templates/insertable/daily note.md` above the previous day's H1 (below the persistent notes). Don't create a day section as a side effect of another task — if today's H1 is missing, say so.
+A new day is started by inserting `templates/insertable/daily note.md` above the previous day's H1 (below the persistent notes). There should only ever be one H1 per day, if the day already exists use it, or add a new one if it doesn't exist.
 
 ## Editing today's note
 
@@ -61,13 +61,12 @@ daily-note.sh append Notes "[[Some note]]"    # insert at the BOTTOM of a sectio
 daily-note.sh done   Tasks "write the"        # check off first open task matching
 ```
 
-Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix; other sections take the text as-is. Overrides: `NOTES=~/Notes`, `TODO_DAY="Thu Sep 3"`. Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
+Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix; other sections take the text as-is. Overrides: `NOTES="~/Notes"`, `TODO_DAY="Thu Sep 3"`. Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
 
 Callers: the `todo` skill, and `hooks/save-plan.sh` in the agent-config repo.
 
-## Plans
-
-`PostToolUse:ExitPlanMode` runs `hooks/save-plan.sh` (agent-config repo, symlinked to `~/.claude/hooks`), which copies the plan Claude Code wrote in `~/.claude/plans/` into `~/Notes/Plans/<date> <title>.md` with frontmatter (repo, branch, cwd, session, source) and appends `[[<plan name>]]` to today's `## Notes`. Re-approving a revised plan overwrites the same vault file — it is matched on the `source:` line — and does not add a second link.
+## New documents
+Every new document created should be linked to from today's `## Notes` section using Wikilinks format `[[<filename>]]`
 
 ## CLI vs direct file edits
 
@@ -80,9 +79,178 @@ Use the CLI for what it does better than a file walk, all read-only:
 ```bash
 obsidian search:context query="text" limit=5   # vault-wide search with context
 obsidian tasks todo verbose                    # tasks across the vault
-obsidian outline path="inbox/T3 2026 now.md"   # heading map of a note
+obsidian outline path="daily/2026/T3 2026 now.md"  # heading map of a note
 obsidian backlinks file="Note"                 # links in / out
 obsidian history path="..."                    # local version history (recovery)
 ```
 
 Obsidian picks up external file changes on its own. If a note is open with unsaved edits, the app's buffer can still win — prefer one write, then verify with `grep` on the file.
+
+## Obsidian flavoured markdown
+
+### Workflow: Creating an Obsidian Note
+
+1. **Add frontmatter** with properties (title, tags, aliases) at the top of the file. See [PROPERTIES.md](references/PROPERTIES.md) for all property types.
+2. **Write content** using standard Markdown for structure, plus Obsidian-specific syntax below.
+3. **Link related notes** using wikilinks (`[[Note]]`) for internal vault connections, or standard Markdown links for external URLs.
+4. **Embed content** from other notes, images, or PDFs using the `![[embed]]` syntax. See [EMBEDS.md](references/EMBEDS.md) for all embed types.
+5. **Add callouts** for highlighted information using `> [!type]` syntax. See [CALLOUTS.md](references/CALLOUTS.md) for all callout types.
+6. **Verify** the note renders correctly in Obsidian's reading view.
+
+> When choosing between wikilinks and Markdown links: use `[[wikilinks]]` for notes within the vault (Obsidian tracks renames automatically) and `[text](url)` for external URLs only.
+
+### Internal Links (Wikilinks)
+
+```markdown
+[[Note Name]]                          Link to note
+[[Note Name|Display Text]]             Custom display text
+[[Note Name#Heading]]                  Link to heading
+[[Note Name#^block-id]]                Link to block
+[[#Heading in same note]]              Same-note heading link
+```
+
+Define a block ID by appending `^block-id` to any paragraph:
+
+```markdown
+This paragraph can be linked to. ^my-block-id
+```
+
+For lists and quotes, place the block ID on a separate line after the block:
+
+```markdown
+> A quote block
+
+^quote-id
+```
+
+### Embeds
+
+Prefix any wikilink with `!` to embed its content inline:
+
+```markdown
+![[Note Name]]                         Embed full note
+![[Note Name#Heading]]                 Embed section
+![[image.png]]                         Embed image
+![[image.png|300]]                     Embed image with width
+![[document.pdf#page=3]]               Embed PDF page
+```
+
+See [EMBEDS.md](references/EMBEDS.md) for audio, video, search embeds, and external images.
+
+### Callouts
+
+```markdown
+> [!note]
+> Basic callout.
+
+> [!warning] Custom Title
+> Callout with a custom title.
+
+> [!faq]- Collapsed by default
+> Foldable callout (- collapsed, + expanded).
+```
+
+Common types: `note`, `tip`, `warning`, `info`, `example`, `quote`, `bug`, `danger`, `success`, `failure`, `question`, `abstract`, `todo`.
+
+See [CALLOUTS.md](references/CALLOUTS.md) for the full list with aliases, nesting, and custom CSS callouts.
+
+### Properties (Frontmatter)
+
+```yaml
+---
+title: My Note
+date: 2024-01-15
+tags:
+  - project
+  - active
+aliases:
+  - Alternative Name
+cssclasses:
+  - custom-class
+---
+```
+
+Default properties: `tags` (searchable labels), `aliases` (alternative note names for link suggestions), `cssclasses` (CSS classes for styling).
+
+See [PROPERTIES.md](references/PROPERTIES.md) for all property types, tag syntax rules, and advanced usage.
+
+### Tags
+
+```markdown
+#tag                    Inline tag
+#nested/tag             Nested tag with hierarchy
+```
+
+Tags can contain letters, numbers (not first character), underscores, hyphens, and forward slashes. Tags can also be defined in frontmatter under the `tags` property.
+
+### Obsidian-Specific Formatting
+
+```markdown
+==Highlighted text==                   Highlight syntax
+```
+
+## Diagrams (Mermaid)
+
+````markdown
+```mermaid
+graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Do this]
+    B -->|No| D[Do that]
+```
+````
+
+To link Mermaid nodes to Obsidian notes, add `class NodeName internal-link;`.
+
+## Footnotes
+
+```markdown
+Text with a footnote[^1].
+
+[^1]: Footnote content.
+
+Inline footnote.^[This is inline.]
+```
+
+## Complete Example
+
+````markdown
+---
+title: Project Alpha
+date: 2024-01-15
+tags:
+  - project
+  - active
+status: in-progress
+---
+
+# Project Alpha
+
+This project aims to [[improve workflow]] using modern techniques.
+
+> [!important] Key Deadline
+> The first milestone is due on ==January 30th==.
+
+## Tasks
+
+- [x] Initial planning
+- [ ] Development phase
+  - [ ] Backend implementation
+  - [ ] Frontend design
+
+## Notes
+
+The algorithm uses $O(n \log n)$ sorting. See [[Algorithm Notes#Sorting]] for details.
+
+![[Architecture Diagram.png|600]]
+
+Reviewed in [[Meeting Notes 2024-01-10#Decisions]].
+````
+
+## References
+
+- [Obsidian Flavored Markdown](https://help.obsidian.md/obsidian-flavored-markdown)
+- [Internal links](https://help.obsidian.md/links)
+- [Embed files](https://help.obsidian.md/embeds)
+- [Callouts](https://help.obsidian.md/callouts)
+- [Properties](https://help.obsidian.md/properties)
