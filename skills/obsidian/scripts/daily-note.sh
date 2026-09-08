@@ -14,8 +14,9 @@ usage:
 sections are H2 headings inside today's H1, e.g. Tasks, Notes, Meetings, Personal.
 
 env:
-  NOTES=~/Notes   vault root
-  TODO_DAY="Thu Sep 3"     target another day's section (default: today)
+  OBSIDIAN_VAULT_PATH     vault root (set per machine; the normal source)
+  NOTES                   override the vault root for one call
+  TODO_DAY="Thu Sep 3"    target another day's section (default: today)
 USAGE
   exit 2
 }

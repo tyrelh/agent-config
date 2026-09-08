@@ -1,15 +1,13 @@
 ---
 name: obsidian
-description: Map of Tyrel's Obsidian vault at "~/Notes" — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
+description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
 ---
 
 # Obsidian vault
 
-Vault root: `~/Notes`. It has its own `AGENTS.md` — read it for conventions; this skill is the operational layer on top. Paths below are relative to the vault root.
+Vault root: **`$OBSIDIAN_VAULT_PATH`** — always use the env var; the vault lives somewhere different on each machine. It may contain spaces, so quote every expansion: `"$OBSIDIAN_VAULT_PATH/daily"`. Paths below are relative to the vault root.
 
-## Related skills
-
-- `obsidian-markdown` — Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties.
+The vault has its own `AGENTS.md` at the root — read it for conventions; this skill is the operational layer on top.
 
 ## Layout
 
@@ -24,7 +22,7 @@ Vault root: `~/Notes`. It has its own `AGENTS.md` — read it for conventions; t
 
 ## Term log (the running daily note)
 
-One note per term (a third of a year), in `daily/<year>/`, named `T<n> <year>.md` — older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `daily/2026/T3 2026 now.md`. Find it with `ls ~/Notes/Main\ Notes/daily/*/*now*.md`; expect exactly one match and stop if that isn't true.
+One note per term (a third of a year), in `daily/<year>/`, named `T<n> <year>.md` — older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `daily/2026/T3 2026 now.md`. Find it with `ls "$OBSIDIAN_VAULT_PATH"/daily/*/*now*.md`; expect exactly one match and stop if that isn't true.
 
 Structure — first H1 is persistent term notes, every H1 after it is one day, **newest first**:
 
@@ -61,7 +59,7 @@ daily-note.sh append Notes "[[Some note]]"    # insert at the BOTTOM of a sectio
 daily-note.sh done   Tasks "write the"        # check off first open task matching
 ```
 
-Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix; other sections take the text as-is. Overrides: `NOTES="~/Notes"`, `TODO_DAY="Thu Sep 3"`. Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
+Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix; other sections take the text as-is. It resolves the vault as `NOTES` → `OBSIDIAN_VAULT_PATH` → `~/Notes`, so it needs no arguments on a machine where the env var is set. Overrides: `NOTES` (point it at another vault), `TODO_DAY="Thu Sep 3"` (target another day). Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
 
 Callers: the `todo` skill, and `hooks/save-plan.sh` in the agent-config repo.
 

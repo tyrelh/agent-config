@@ -17,7 +17,7 @@ daily-note.sh list   Tasks                  # print today's Tasks list
 daily-note.sh done   Tasks "<substring>"    # check off first open task containing substring
 ```
 
-It edits the markdown file on disk; Obsidian does not need to be running. Overrides: `NOTES=~/Notes`, `TODO_DAY="Thu Sep 3"`.
+It edits the markdown file on disk; Obsidian does not need to be running. It finds the vault via `$OBSIDIAN_VAULT_PATH`. Overrides: `NOTES` (another vault), `TODO_DAY="Thu Sep 3"` (another day).
 
 Exit 1 with an `ERR:` line means nothing was written — report it verbatim, don't work around it. The common one is no `# <today>` heading, i.e. the daily note template isn't inserted yet; tell the user rather than creating the section.
 

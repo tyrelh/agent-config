@@ -7,7 +7,7 @@
 set -uo pipefail
 
 PLANS_SRC=${CLAUDE_PLANS_DIR:-$HOME/.claude/plans}
-PLANS_DEST=${VAULT_PLANS_DIR:-$HOME/Notes/plans}
+PLANS_DEST=${VAULT_PLANS_DIR:-${OBSIDIAN_VAULT_PATH:-$HOME/Notes}/plans}
 
 payload=$(cat 2>/dev/null)
 field() { printf '%s' "$payload" | jq -r "$1 // empty" 2>/dev/null; }
