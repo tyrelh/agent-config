@@ -369,7 +369,3 @@ Keep the details that carry the writer's voice unless they hurt the meaning:
 - Dated, era-bound references: slang, memes, and in-jokes that map to a specific year and subculture.
 - A first-person choice the writer can explain.
 - A genuine aside, parenthetical, or self-correction: "(I keep wanting to say 'almost' here, but it really was certain.)"
-
-## Source
-
-The patterns come from Wikipedia's ["Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup, and from reviews of AI-generated text on Wikipedia and elsewhere.
