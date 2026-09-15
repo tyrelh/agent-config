@@ -55,7 +55,7 @@ daily_note=${DAILY_NOTE_SH:-$HOME/.claude/skills/obsidian/scripts/daily-note.sh}
 name=$(basename "$dest" .md)
 linked=""
 if [ -x "$daily_note" ] && ! "$daily_note" list Notes 2>/dev/null | grep -qF "[[$name]]"; then
-  "$daily_note" append Notes "[[$name]]" >/dev/null 2>&1 && linked=" and linked in today's note"
+  "$daily_note" append Notes "Created plan [[$name]] with Claude Code${repo:+ in _${repo}_}" >/dev/null 2>&1 && linked=" and linked in today's note"
 fi
 
 jq -n --arg p "${dest/#$HOME/~}" --arg l "$linked" \
