@@ -44,9 +44,10 @@ Exit codes: `0` success, `1` content problem, `2` usage error.
 2. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py source-delta`
 3. Read only actionable _raw_ sources, those listed under `NEW`, `CHANGED`, or `PENDING`. `REMOVED` rows need no reading; the manifest refresh in `finish` clears them
 4. Update or create compact _wiki_ notes, referencing _schema/note-schema.md_
-5. Preserve `topics` and `sources` traceability
-6. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`. It fixes `source_count`, rebuilds the index, refreshes the manifest with `--accept-covered`, lints, and logs the message
-7. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is logged until lint is clean
+5. Run the `humanizer` or `humanize` skill on the note if available and implement changes if needed
+6. Preserve `topics` and `sources` traceability
+7. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`. It fixes `source_count`, rebuilds the index, refreshes the manifest with `--accept-covered`, lints, and logs the message
+8. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is logged until lint is clean
 
 #### Query
 
