@@ -1,6 +1,6 @@
 ---
 name: obsidian
-description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Use to log completed work, including work outside the vault. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
+description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Use to log completed work, including work outside the vault. Load before reading or writing anything in the vault.
 ---
 
 # Obsidian vault
@@ -181,14 +181,10 @@ date: 2024-01-15
 tags:
   - project
   - active
-aliases:
-  - Alternative Name
-cssclasses:
-  - custom-class
 ---
 ```
 
-Default properties: `tags` (searchable labels), `aliases` (alternative note names for link suggestions), `cssclasses` (CSS classes for styling).
+Default properties: `tags` (searchable labels).
 
 See [PROPERTIES.md](references/PROPERTIES.md) for all property types, tag syntax rules, and advanced usage.
 
@@ -219,16 +215,6 @@ graph TD
 ````
 
 To link Mermaid nodes to Obsidian notes, add `class NodeName internal-link;`.
-
-## Footnotes
-
-```markdown
-Text with a footnote[^1].
-
-[^1]: Footnote content.
-
-Inline footnote.^[This is inline.]
-```
 
 ## Complete Example
 
