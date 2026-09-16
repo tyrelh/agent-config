@@ -1,6 +1,6 @@
 ---
 name: obsidian
-description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Load before reading or writing anything in the vault, and alongside obsidian-cli, obsidian-markdown, or obsidian-bases.
+description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Use to log completed work, including work outside the vault. Load before reading or writing anything in the vault.
 ---
 
 # Obsidian vault
@@ -55,16 +55,36 @@ A new day is started by inserting `templates/insertable/daily note.md` above the
 ```bash
 daily-note.sh list   Notes                    # print a section
 daily-note.sh add    Tasks "write the thing"  # insert at the TOP of a section
-daily-note.sh append Notes "[[Some note]]"    # insert at the BOTTOM of a section
+daily-note.sh append Notes "Captured [[Some note]] with research findings"    # insert at the BOTTOM of a section
 daily-note.sh done   Tasks "write the"        # check off first open task matching
 ```
 
-Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix; other sections take the text as-is. It resolves the vault as `NOTES` → `OBSIDIAN_VAULT_PATH` → `~/Notes`, so it needs no arguments on a machine where the env var is set. Overrides: `NOTES` (point it at another vault), `TODO_DAY="Thu Sep 3"` (target another day). Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
+Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix unless an explicit checkbox is supplied (use `- [x]` for completed work); other sections take the text as-is. It resolves the vault as `NOTES` → `OBSIDIAN_VAULT_PATH` → `~/Notes`, so it needs no arguments on a machine where the env var is set. Overrides: `NOTES` (point it at another vault), `TODO_DAY="Thu Sep 3"` (target another day). Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
 
 Callers: the `todo` skill, and `hooks/save-plan.sh` in the agent-config repo.
 
-## New documents
-Every new document created should be linked to from today's `## Notes` section using Wikilinks format `[[<filename>]]`
+## Log completed work
+
+Record any completed work in today's daily note before finishing, including work outside the vault. Choose the section by the outcome:
+
+- **`## Tasks`:** Completed actions, fixes, implementations, reviews, and other tasks. Check off a matching existing open task with `daily-note.sh done Tasks "<specific matching text>"`. If none exists, append a concise checked item with `daily-note.sh append Tasks "- [x] <completed work>"`.
+- **`## Notes`:** Reference material, captured information, research findings, and reference documents. Append a short, verb-led summary with links to relevant material. Use `[[<filename>]]` for vault documents; never append a bare link.
+
+Check today's entries first, including entries written by hooks, and avoid duplicating the same outcome. Log meaningful completed outcomes, not every intermediate tool call. A task with a supporting document can link that document from its checked task; it does not need a duplicate Notes entry. Logging itself does not require another log entry. If today's section is missing or the helper fails, report that logging could not be completed rather than claiming success.
+
+Examples:
+
+```markdown
+## Tasks
+- [x] Fixed the Hermes browser installation for ARM64
+- [x] Reviewed [[PLAN 2026-09-14 Typesense Cloud]] and recorded findings
+
+## Notes
+Captured [[Typesense API Keys]] with key types and configuration references
+Summarized [[NordLayer changing our VPN IP]] with the announced changes
+```
+
+Link new vault documents from the appropriate entry in Tasks or Notes according to this routing.
 
 ## CLI vs direct file edits
 
@@ -161,14 +181,10 @@ date: 2024-01-15
 tags:
   - project
   - active
-aliases:
-  - Alternative Name
-cssclasses:
-  - custom-class
 ---
 ```
 
-Default properties: `tags` (searchable labels), `aliases` (alternative note names for link suggestions), `cssclasses` (CSS classes for styling).
+Default properties: `tags` (searchable labels).
 
 See [PROPERTIES.md](references/PROPERTIES.md) for all property types, tag syntax rules, and advanced usage.
 
@@ -199,16 +215,6 @@ graph TD
 ````
 
 To link Mermaid nodes to Obsidian notes, add `class NodeName internal-link;`.
-
-## Footnotes
-
-```markdown
-Text with a footnote[^1].
-
-[^1]: Footnote content.
-
-Inline footnote.^[This is inline.]
-```
 
 ## Complete Example
 

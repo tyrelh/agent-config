@@ -26,13 +26,9 @@
       "Search",
       "WebSearch"
     ],
-    "ask": [
-      "Bash(curl *)",
-      "Bash(wget *)"
-    ],
     "defaultMode": "bypassPermissions"
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "PostToolUse": [
       {
@@ -100,10 +96,10 @@
       "effortLevel": "medium"
     },
     "claude-opus-5": {
-      "effortLevel": "low"
+      "effortLevel": "medium"
     },
     "claude-sonnet-5": {
-      "effortLevel": "low"
+      "effortLevel": "medium"
     }
   },
   "tui": "fullscreen",
