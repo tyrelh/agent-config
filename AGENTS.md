@@ -9,6 +9,13 @@ When I say "side pane" or "on the side", I mean run it in a herdr pane.
 
 I maintain knowledge, research, and daily notes in my Obsidian vault. It's located in _${OBSIDIAN_VAULT_PATH}_. Use the `obsidian` skill whenever you need to interact with the vault.
 
+Record any completed work in today's daily note (the current term log) before finishing, including work outside the vault. Load the `obsidian` skill and use its `scripts/daily-note.sh` helper:
+
+- **Tasks:** Record completed actions, fixes, implementations, reviews, and other tasks in `## Tasks` as checked items (`- [x]`). Check off a matching existing task; otherwise append a concise completed task.
+- **Reference material:** Record captured information, research findings, and reference documents in `## Notes`, with a short, verb-led summary and links to relevant material. Use Wikilinks for vault documents.
+
+Check today's entries first and avoid duplicates, including entries already written by a hook. Log meaningful outcomes, not every intermediate tool call; updating the daily log does not itself need another entry. If today's section is missing or logging fails, report that it could not be completed.
+
 ## LLM Knowledge Wiki (fog)
 
 I maintain an LLM Wiki of knowledge and research in my Obsidian vault called _fog_. It's located in _${OBSIDIAN_VAULT_PATH}/fog/_
@@ -37,9 +44,10 @@ Exit codes: `0` success, `1` content problem, `2` usage error.
 2. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py source-delta`
 3. Read only actionable _raw_ sources, those listed under `NEW`, `CHANGED`, or `PENDING`. `REMOVED` rows need no reading; the manifest refresh in `finish` clears them
 4. Update or create compact _wiki_ notes, referencing _schema/note-schema.md_
-5. Preserve `topics` and `sources` traceability
-6. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`. It fixes `source_count`, rebuilds the index, refreshes the manifest with `--accept-covered`, lints, and logs the message
-7. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is logged until lint is clean
+5. Run the `humanizer` or `humanize` skill on the note if available and implement changes if needed
+6. Preserve `topics` and `sources` traceability
+7. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`. It fixes `source_count`, rebuilds the index, refreshes the manifest with `--accept-covered`, lints, and logs the message
+8. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is logged until lint is clean
 
 #### Query
 
