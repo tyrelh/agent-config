@@ -20,9 +20,12 @@ terminal:
   home_mode: auto
   lifetime_seconds: 300
 browser:
+  backend: 'off'
   inactivity_timeout: 120
+  engine: auto
   extension_control:
     enabled: false
+  cloud_provider: local
 tool_loop_guardrails:
   warnings_enabled: true
   hard_stop_enabled: false
