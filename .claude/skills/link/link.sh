@@ -1,6 +1,6 @@
 #!/bin/sh
-# Links every skill directory from skills/ and work-skills/ into ~/.claude/skills.
-# Personal skills/ wins on a name collision. Re-run after adding or removing a skill.
+# Links every skill directory from skills/ into ~/.claude/skills.
+# Re-run after adding or removing a skill.
 set -eu
 
 REPO=$(cd "$(dirname "$0")/../../.." && pwd)
@@ -17,17 +17,11 @@ for link in "$DEST"/*; do
 	esac
 done
 
-claimed=" "
-for src in "$REPO"/skills/*/ "$REPO"/work-skills/*/; do
+for src in "$REPO"/skills/*/; do
 	[ -d "$src" ] || continue
 	name=$(basename "$src")
 	link=$DEST/$name
 	target=${src%/}
-	case $claimed in *" $name "*)
-		echo "skip $name: shadowed by $(readlink "$link")" >&2
-		continue ;;
-	esac
-	claimed="$claimed$name "
 	if [ -e "$link" ] && [ ! -L "$link" ]; then
 		echo "skip $name: $link exists and is not a symlink" >&2
 		continue

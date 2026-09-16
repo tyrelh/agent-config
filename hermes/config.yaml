@@ -96,7 +96,6 @@ delegation:
 skills:
   external_dirs:
     - /home/hermes/agent-config/skills
-    - /home/hermes/agent-config/work-skills
   creation_nudge_interval: 15
   disabled:
     - airtable
