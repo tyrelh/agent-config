@@ -26,10 +26,6 @@
       "Search",
       "WebSearch"
     ],
-    "ask": [
-      "Bash(curl *)",
-      "Bash(wget *)"
-    ],
     "defaultMode": "bypassPermissions"
   },
   "model": "sonnet",
