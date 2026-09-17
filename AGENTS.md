@@ -9,7 +9,7 @@ When I say "side pane" or "on the side", I mean run it in a herdr pane.
 
 I maintain knowledge, research, and daily notes in my Obsidian vault. It's located in _${OBSIDIAN_VAULT_PATH}_. Use the `obsidian` skill whenever you need to interact with the vault.
 
-Record any completed work in today's daily note (the current term log) before finishing, including work outside the vault. Load the `obsidian` skill and use its `scripts/daily-note.sh` helper:
+Ask the user if they want completed work to be logged in today's daily note (the current term log) before finishing, including work outside the vault. Give the user 3 options: record as a completed task in `## Tasks`, record as a reference in `## Notes`, or don't record. Load the `obsidian` skill and use its `scripts/daily-note.sh` helper:
 
 - **Tasks:** Record completed actions, fixes, implementations, reviews, and other tasks in `## Tasks` as checked items (`- [x]`). Check off a matching existing task; otherwise append a concise completed task.
 - **Reference material:** Record captured information, research findings, and reference documents in `## Notes`, with a short, verb-led summary and links to relevant material. Use Wikilinks for vault documents.
