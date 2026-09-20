@@ -9,6 +9,7 @@ service_tier = "default"
 [features]
 multi_agent = true
 js_repl = false
+fast_mode = false
 
 [plugins."github@openai-curated"]
 enabled = true
