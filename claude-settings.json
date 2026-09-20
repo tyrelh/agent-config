@@ -28,7 +28,7 @@
     ],
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "PostToolUse": [
       {
@@ -62,7 +62,8 @@
     "ponytail@ponytail": true,
     "coderabbit@claude-plugins-official": true,
     "notion@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -90,7 +91,7 @@
       }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "modelSettings": {
     "claude-fable-5-1": {
       "effortLevel": "medium"
@@ -104,6 +105,7 @@
   },
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
+  "theme": "dark-ansi",
   "precomputeCompactionEnabled": true,
   "autoContinueAtUsageLimit": true,
   "fileCheckpointingEnabled": true
