@@ -5,7 +5,7 @@ description: Add, list, or check off tasks in Tyrel's Obsidian vault (the curren
 
 # Todo
 
-Today's tasks live under `## Tasks` in the current term log note. Vault layout and note structure are in the `obsidian` skill — read it if anything below needs context.
+Today's tasks live under `## Tasks` in the current term log note. Vault layout and note structure are in the `obsidian` skill. Read it if anything below needs context.
 
 ## Script
 
@@ -19,14 +19,16 @@ daily-note.sh done   Tasks "<substring>"    # check off first open task containi
 
 It edits the markdown file on disk; Obsidian does not need to be running. It finds the vault via `$OBSIDIAN_VAULT_PATH`. Overrides: `NOTES` (another vault), `TODO_DAY="Thu Sep 3"` (another day).
 
-Exit 1 with an `ERR:` line means nothing was written — report it verbatim, don't work around it. The common one is no `# <today>` heading, i.e. the daily note template isn't inserted yet; tell the user rather than creating the section.
+Exit 1 with an `ERR:` line means nothing was written. Report it verbatim, don't work around it. The common one is no `# <today>` heading, i.e. the daily note template isn't inserted yet; tell the user rather than creating the section.
 
 ## Task text rules
 
-Pass the text through verbatim — no rewording, no expanding, no tags or dates the user didn't type. Obsidian Tasks syntax (`#tag`, `📅 2026-09-10`, `⏫`) and wikilinks are already valid. `- [ ] ` is prefixed unless the text already starts with a checkbox.
+Pass the text through verbatim, with no rewording, no expanding, and no tags or dates the user didn't type. Obsidian Tasks syntax (`#tag`, `📅 2026-09-10`, `⏫`) and wikilinks are already valid. `- [ ] ` is prefixed unless the text already starts with a checkbox.
 
-`done` leaves the task in place (only `[ ]` → `[x]`) — Tyrel moves finished tasks to the bottom of the list himself.
+`done` leaves the task in place (only `[ ]` → `[x]`). Tyrel moves finished tasks to the bottom of the list himself.
+
+Wikilinks in `Tasks` are not scanned by Magpie. A document that should be ingested has to be linked from `## Notes` as well. See the `obsidian` skill.
 
 ## Output
 
-One line: what was added or checked off, and where. For `list`, the lines as-is — no summarizing, no reordering.
+One line: what was added or checked off, and where. For `list`, the lines as-is, with no summarizing and no reordering.

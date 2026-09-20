@@ -1,13 +1,13 @@
 ---
 name: obsidian
-description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, and when to use the obsidian CLI vs editing files directly. Use to log completed work, including work outside the vault. Load before reading or writing anything in the vault.
+description: Map of Tyrel's Obsidian vault, rooted at $OBSIDIAN_VAULT_PATH — where notes live, the term log / daily note structure, how Magpie ingests sources linked from today's Notes, and when to use the obsidian CLI vs editing files directly. Use to log completed work, including work outside the vault. Load before reading or writing anything in the vault.
 ---
 
 # Obsidian vault
 
-Vault root: **`$OBSIDIAN_VAULT_PATH`** — always use the env var; the vault lives somewhere different on each machine. It may contain spaces, so quote every expansion: `"$OBSIDIAN_VAULT_PATH/daily"`. Paths below are relative to the vault root.
+Vault root: **`$OBSIDIAN_VAULT_PATH`**. Always use the env var; the vault lives somewhere different on each machine. It may contain spaces, so quote every expansion: `"$OBSIDIAN_VAULT_PATH/daily"`. Paths below are relative to the vault root.
 
-The vault has its own `AGENTS.md` at the root — read it for conventions; this skill is the operational layer on top.
+The vault has its own `AGENTS.md` at the root. Read it for conventions; this skill is the operational layer on top.
 
 ## Layout
 
@@ -16,15 +16,16 @@ The vault has its own `AGENTS.md` at the root — read it for conventions; this 
 | `daily/<year>/` | Term logs (the daily notes) |
 | `inbox/` | Any new standalone note (clearly named) |
 | `notes/`, `topics/`, `projects/`, `books/` | Long-lived notes |
-| `plans/` | AI-generated plans |
+| `plans/` | AI-generated plans. New plans go here, not `inbox/` |
+| `magpie/` | The LLM knowledge wiki (`wiki/`, `raw/`, `schema/`, `source-ledger.csv`) |
 | `templates/insertable/daily note.md` | The daily note template |
-| `archive/` | Old material — don't write here |
+| `archive/` | Old material. Don't write here |
 
 ## Term log (the running daily note)
 
-One note per term (a third of a year), in `daily/<year>/`, named `T<n> <year>.md` — older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `daily/2026/T3 2026 now.md`. Find it with `ls "$OBSIDIAN_VAULT_PATH"/daily/*/*now*.md`; expect exactly one match and stop if that isn't true.
+One note per term (a third of a year), in `daily/<year>/`, named `T<n> <year>.md`. Older quarterly ones are `Q<n> <year>.md`. **The current one has `now` in the filename**: `daily/2026/T3 2026 now.md`. Find it with `ls "$OBSIDIAN_VAULT_PATH"/daily/*/*now*.md`; expect exactly one match and stop if that isn't true.
 
-Structure — first H1 is persistent term notes, every H1 after it is one day, **newest first**:
+Structure: the first H1 is persistent term notes, and every H1 after it is one day, **newest first**:
 
 ```markdown
 # T3 2026              <- persistent notes/links for the whole term
@@ -59,7 +60,7 @@ daily-note.sh append Notes "Captured [[Some note]] with research findings"    # 
 daily-note.sh done   Tasks "write the"        # check off first open task matching
 ```
 
-Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix unless an explicit checkbox is supplied (use `- [x]` for completed work); other sections take the text as-is. It resolves the vault as `NOTES` → `OBSIDIAN_VAULT_PATH` → `~/Notes`, so it needs no arguments on a machine where the env var is set. Overrides: `NOTES` (point it at another vault), `TODO_DAY="Thu Sep 3"` (target another day). Exit 1 with an `ERR:` line means nothing was written — no `# <today>` heading (template not inserted yet) or no such section.
+Sections are the H2s under today's H1: `Meetings`, `Tasks`, `Notes`, `Left off`, `Personal`. `add`/`append` to `Tasks` get a `- [ ] ` prefix unless an explicit checkbox is supplied (use `- [x]` for completed work); other sections take the text as-is. It resolves the vault as `NOTES` → `OBSIDIAN_VAULT_PATH` → `~/Notes`, so it needs no arguments on a machine where the env var is set. Overrides: `NOTES` (point it at another vault), `TODO_DAY="Thu Sep 3"` (target another day). Exit 1 with an `ERR:` line means nothing was written: either no `# <today>` heading (template not inserted yet) or no such section.
 
 Callers: the `todo` skill, and `hooks/save-plan.sh` in the agent-config repo.
 
@@ -86,11 +87,36 @@ Summarized [[NordLayer changing our VPN IP]] with the announced changes
 
 Link new vault documents from the appropriate entry in Tasks or Notes according to this routing.
 
+## Where new documents go
+
+- **Standalone note** → `inbox/`, clearly named. Link it from `## Notes` with a short reason it exists.
+- **Plan** → `plans/` directly. Link it from `## Notes` when it's created or substantially revised, and put the action to carry it out in `## Tasks`. Both sections can link to the same plan. `hooks/save-plan.sh` in the agent-config repo already files and Notes-links plans written through plan mode.
+- **Clipped article, transcript, or captured research with no other home** → `magpie/raw/`.
+- Everything else stays where it belongs. Magpie cites sources in place; don't move a document into `magpie/raw/` just to get it ingested.
+
+## Magpie ingestion
+
+Magpie (`magpie/`) is the LLM knowledge wiki. It discovers sources only through wikilinks in the `## Notes` section of today's entry in the current term log. Links in `Tasks`, `Meetings`, `Left off`, and `Personal` are not scanned, and older days are not re-scanned. So a document that should be ingested has to be linked from today's `## Notes` on the day it's created or substantially changed.
+
+- A document opts out permanently with `magpie: ignore` in its frontmatter; that also holds a previously queued source out of the pending queue.
+- A source queued on an earlier day stays pending until a pass ingests it, so a run still processes the backlog when today's entry or its `## Notes` section is missing.
+- Read pending sources from their vault paths like any other file. `finish` hashes them itself; there is no read-source command and no SHA argument.
+
+```bash
+python3 "$OBSIDIAN_VAULT_PATH/magpie/scripts/wiki_tool.py" discover
+python3 "$OBSIDIAN_VAULT_PATH/magpie/scripts/wiki_tool.py" pending
+python3 "$OBSIDIAN_VAULT_PATH/magpie/scripts/wiki_tool.py" finish "<what changed>" --ingested "<vault-relative source path>"
+```
+
+Repeat `--ingested` once per source actually read and compiled. Only those are marked ingested. A citation in a compiled note is not proof the current version was read, and identical hashes are not proof of a move. Keep compiled notes source-traceable, and keep proposed plan changes distinct from behavior that shipped.
+
+Full workflow, ledger columns, and the compiled-note contract: `magpie/schema/context.md` and `magpie/schema/note-schema.md` in the vault.
+
 ## CLI vs direct file edits
 
 **Read and edit the markdown files directly** for anything structural: inserting mid-document, editing a specific section, rewriting a list. Plain file edits, `sed`/`awk`, or the Edit tool.
 
-Do **not** write through `obsidian eval` / `app.vault.process`. Verified failure (Sep 4 2026): writes to a note that was open in the app landed in the editor buffer only, read back fine through the API, and were then lost when the buffer reloaded from disk — file mtime never changed. Writes must go to disk.
+Do **not** write through `obsidian eval` / `app.vault.process`. Verified failure (Sep 4 2026): writes to a note that was open in the app landed in the editor buffer only, read back fine through the API, and were then lost when the buffer reloaded from disk; the file mtime never changed. Writes must go to disk.
 
 Use the CLI for what it does better than a file walk, all read-only:
 
@@ -102,7 +128,7 @@ obsidian backlinks file="Note"                 # links in / out
 obsidian history path="..."                    # local version history (recovery)
 ```
 
-Obsidian picks up external file changes on its own. If a note is open with unsaved edits, the app's buffer can still win — prefer one write, then verify with `grep` on the file.
+Obsidian picks up external file changes on its own. If a note is open with unsaved edits, the app's buffer can still win, so prefer one write, then verify with `grep` on the file.
 
 ## Obsidian flavoured markdown
 

@@ -16,56 +16,73 @@ Record any completed work in today's daily note (the current term log) before fi
 
 Check today's entries first and avoid duplicates, including entries already written by a hook. Log meaningful outcomes, not every intermediate tool call; updating the daily log does not itself need another entry. If today's section is missing or logging fails, report that it could not be completed.
 
-## LLM Knowledge Wiki (fog)
+New standalone notes go into _inbox/_; new plans go directly into _plans/_. Link each new note, and each new or substantially revised plan, from `## Notes` with a short reason for it, and put the action to carry out a plan in `## Tasks`. A `## Notes` wikilink is also how Magpie discovers a source, so a document that should be ingested has to be linked there the day it is created or substantially changed.
 
-I maintain an LLM Wiki of knowledge and research in my Obsidian vault called _fog_. It's located in _${OBSIDIAN_VAULT_PATH}/fog/_
+A new day is started by inserting the `templates/insertable/daily note.md` template above the previous day's H1, below the persistent notes at the top. One H1 per day.
+
+## LLM Knowledge Wiki (magpie)
+
+I maintain an LLM Wiki of knowledge and research in my Obsidian vault called _magpie_. It's located in _${OBSIDIAN_VAULT_PATH}/magpie/_
 
 Structure:
 
-- _raw/_: holds captured source material
-	- _raw/source-manifest.csv_
+- _raw/_: holds captured source material that has no other home in the vault
 - _wiki/_: holds compiled, source-traceable knowledge notes
 	- _wiki/index.md_: Contains queryable links to every compiled document in the wiki
 	- _wiki/log.md_: Contains every change and addition to the wiki in linear time order
 - _schema/_: holds rules, commands, and maintenance references
+- _source-ledger.csv_: tracks every source Magpie has seen, by vault-relative path
 
-Whenever searching for information, you should always query _fog_ first. Treat it like a cache for research and knowledge.
+Whenever searching for information, you should always query _magpie_ first. Treat it like a cache for research and knowledge.
 
-When referencing online resources or resources elsewhere in my Obsidian vault, should write findings to _fog/raw/_ for later ingestion.
+Sources live wherever they belong in the vault. A clean article or a finished research note stays where it is and Magpie cites it in place; only material with no other home gets captured into _magpie/raw/_. Ingestion is tracked in the ledger, independent of the folder a document sits in.
+
+### Discovery
+
+Magpie finds sources through wikilinks in the `## Notes` section of today's entry in the current term log. Anything you want ingested must be linked from there on the day you create or substantially change it.
+
+- Links in `## Tasks`, `## Meetings`, `## Left off`, and `## Personal` are not scanned
+- Compiled Magpie pages, daily notes, and templates are never treated as sources
+- A document opts out permanently with `magpie: ignore` in its frontmatter
+- A source queued on an earlier day stays queued until a pass ingests it, so a failed run is not forgotten tomorrow
 
 ### Workflows
 
-All commands run from any working directory as long as `OBSIDIAN_VAULT_PATH` is exported. The script also resolves its own location, so `python3 fog/scripts/wiki_tool.py <command>` works in a clone with nothing set.
+All commands run from any working directory as long as `OBSIDIAN_VAULT_PATH` is exported. The script also resolves its own location, so `python3 magpie/scripts/wiki_tool.py <command>` works in a clone with nothing set.
 Exit codes: `0` success, `1` content problem, `2` usage error.
 
 #### Ingest
 
-1. Capture source material into _${OBSIDIAN_VAULT_PATH}/fog/raw/_
-2. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py source-delta`
-3. Read only actionable _raw_ sources, those listed under `NEW`, `CHANGED`, or `PENDING`. `REMOVED` rows need no reading; the manifest refresh in `finish` clears them
-4. Update or create compact _wiki_ notes, referencing _schema/note-schema.md_
-5. Run the `humanizer` or `humanize` skill on the note if available and implement changes if needed
-6. Preserve `topics` and `sources` traceability
-7. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`. It fixes `source_count`, rebuilds the index, refreshes the manifest with `--accept-covered`, lints, and logs the message
-8. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is logged until lint is clean
+1. Capture anything with no other home in the vault into _${OBSIDIAN_VAULT_PATH}/magpie/raw/_; leave everything else where it lives
+2. Link each new or substantially changed source from today's `## Notes`
+3. Run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py discover`. It queues new and changed sources and reports `MISSING`, `AMBIGUOUS`, and `EXCLUDED` links
+4. Run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py pending` for the full queue, including sources left over from earlier days
+5. Read each pending source directly from its vault path. Update or create compact _wiki_ notes, referencing _schema/note-schema.md_
+6. Run the `humanizer` or `humanize` skill on the note if available and implement changes if needed
+7. Preserve `topics` and `sources` traceability
+8. Run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py finish "<what changed>" --ingested "<vault path>"`, repeating `--ingested` once per source you actually read and compiled. It fixes `source_count`, rebuilds the index, lints, and only then records ingestion and logs the message
+9. If `finish` exits `1`, fix the lint findings it printed and rerun it. Nothing is recorded or logged until lint is clean
+10. A source reported as `GONE` is missing and stays pending.
+
+Only sources named with `--ingested` are ever marked ingested. `finish` records their current content hashes for future change detection; it assumes the files did not change between reading and finishing. A citation in a compiled note is not proof that its current version was read.
 
 #### Query
 
-1. Start with _${OBSIDIAN_VAULT_PATH}/fog/wiki/index.md_
-2. Use `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py search --query "<some query>"`, optionally with `--tag <topic|concept|entity|project>` or `--limit N`
+1. Start with _${OBSIDIAN_VAULT_PATH}/magpie/wiki/index.md_
+2. Use `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py search --query "<some query>"`, optionally with `--tag <topic|concept|entity|project>` or `--limit N`
 3. Open only relevant compiled pages
 4. Answer from the wiki and preserve source links
 
 #### Maintain
 
-1. Run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py source-delta`
-2. If it prints `NO DELTA`, stop. Do not edit files
-3. Process changed _raw_ sources
-4. Seal the pass with `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py finish "<what changed>"`, rerunning after fixing any lint findings
-5. Find the ingest backlog with `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py source-coverage --uncovered`
-6. After editing the script itself, run `python3 ${OBSIDIAN_VAULT_PATH}/fog/scripts/wiki_tool.py selftest`
+1. Run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py discover`
+2. Run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py pending`. If it reports `0 pending`, stop. Do not edit files
+3. Read and process the pending sources
+4. Seal the pass with `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py finish "<what changed>" --ingested "<vault path>"`, rerunning after fixing any lint findings
+5. Find sources the wiki never cites with `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py source-coverage --uncovered`
+6. After editing the script itself, run `python3 ${OBSIDIAN_VAULT_PATH}/magpie/scripts/wiki_tool.py selftest`
 
-Use _fog/scripts/wiki_tool.py_ as the canonical maintenance tool for build, lint, source scan, source delta, source coverage, search, log, and finish. It is one file, standard library only, and never needs `pip install`.
+Use _magpie/scripts/wiki_tool.py_ as the canonical maintenance tool for discovery, pending queue, build, lint, coverage, search, log, and finish. It is one file, standard library only, and never needs `pip install`.
 
 Default write locations:
 
@@ -78,15 +95,18 @@ Default write locations:
 
 Non-negotiable rules:
 
-- Keep raw source notes source-faithful
-- Do not overwrite raw source content during compilation
+- Keep source notes source-faithful
+- Do not overwrite source content during compilation, wherever the source lives
 - Use plain tags only
 - Use `topics` and `sources` frontmatter on compiled wiki notes
 - Treat `source_count` as derived
 - Keep compiled notes short, single-purpose, and source-traceable
-- Uncovered raw sources are ingest backlog, not errors: track them with `source-coverage --uncovered`; lint does not fail on them
+- Pending sources are ingest backlog, not errors; lint does not fail on them
 - Query from _wiki/index.md_ before opening broad context
 
+### Plans
+
+A plan linked from `## Notes` is ingested like any other source. Keep the reasoning and decisions in the compiled note, including what the plan is meant to achieve and any constraints. Distinguish proposed changes from work that shipped: "the plan proposes scanning daily notes" must not become "Magpie scans daily notes" without evidence that the change landed. Leave task checklists and progress tracking in the plan itself.
 
 ## Project context
 Projects may contain configurations from other types of agents. You should read these into context.
