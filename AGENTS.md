@@ -5,6 +5,12 @@ About my job: I work at Giftbit (https://www.giftbit.com). We're building a syst
 ## Terminology
 When I say "side pane" or "on the side", I mean run it in a herdr pane.
 
+## Markdown formatting
+
+Never hard-wrap markdown at a line-length limit. One paragraph is one line, however long it is. I use word wrap in every editor I read these files in, so wrapped lines break as soon as the width differs and they make diffs noisy. This applies to every markdown file you write or edit: skills, agents, notes, plans, READMEs, PR bodies, commit bodies.
+
+Line breaks stay meaningful: between paragraphs, between list items, and inside code blocks.
+
 ## Obsidian Vault
 
 I maintain knowledge, research, and daily notes in my Obsidian vault. It's located in _${OBSIDIAN_VAULT_PATH}_. Use the `obsidian` skill whenever you need to interact with the vault.
