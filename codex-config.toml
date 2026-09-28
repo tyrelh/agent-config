@@ -2,6 +2,7 @@ model = "gpt-6-astra"
 model_reasoning_effort = "high"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
+approval_policy = "never"
 
 notify = ["/Users/tyrel/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 service_tier = "default"
