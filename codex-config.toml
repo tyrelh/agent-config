@@ -62,6 +62,12 @@ trust_level = "trusted"
 [projects."/Users/tyrel/Projects/personal-agent"]
 trust_level = "trusted"
 
+[projects."/Users/tyrel/Projects/lathe"]
+trust_level = "trusted"
+
+[projects."/Users/tyrel/Giftbit/giftbitfe"]
+trust_level = "trusted"
+
 [marketplaces.openai-bundled]
 source_type = "local"
 source = "/Users/tyrel/.codex/.tmp/bundled-marketplaces/openai-bundled"
