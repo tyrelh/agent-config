@@ -10,7 +10,7 @@ An open replacement for the built-in `/simplify`. Fan out a read-only cleanup re
 
 Accepted fixes land in the working tree and stop there. The skill never runs `git add`, `git commit`, `git stash`, or `git push`, and never changes the index. Committing is the user's job, and leaving the changes loose is what lets them read the whole pass as one diff.
 
-Quality only. Correctness bugs, security holes, and architecture opinions are out of scope; a bug noticed in passing gets mentioned and never fixed here. Send those to `/code-review` or the `review-and-apply` skill.
+Quality only. Correctness bugs, security holes, and architecture opinions are out of scope; a bug noticed in passing gets mentioned and never fixed here. Send those to the `/code-review` skill.
 
 ## Phase 0: scope and size
 
@@ -52,18 +52,18 @@ An agent can work several angles. It does them in sequence in one context, which
 
 Launch every agent for the tier in a single message so they run concurrently.
 
-### Small, meaning 3 files or fewer and 150 changed lines or fewer: 1 agent
+### Small, meaning 1 or 2 files and 100 changed lines or fewer: 1 agent
 
 | `subagent_type` | Angles |
 | --- | --- |
 | `simplify-reviewer` | all five |
 
-### Medium, meaning 10 files or fewer or 600 changed lines or fewer: 2 agents
+### Medium, meaning 5 files or fewer or 300 changed lines or fewer: 2 agents
 
 | `subagent_type` | Angles |
 | --- | --- |
-| `simplify-reviewer` | reuse, simplification, altitude |
-| `simplify-reviewer` | efficiency, conventions |
+| `simplify-reviewer` | reuse, simplification, efficiency |
+| `simplify-reviewer` | altitude, conventions |
 
 ### Large, meaning anything bigger: 5 agents
 

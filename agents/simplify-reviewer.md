@@ -2,7 +2,7 @@
 name: simplify-reviewer
 description: Read-only quality reviewer for a pre-built diff, working one or more assigned angles (reuse, simplification, efficiency, altitude, conventions). Spawn several in parallel, splitting the angles between them; give one agent all five when the diff is small. Returns findings only; never edits files. Use when reviewing changed code for cleanup rather than correctness bugs.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 effort: medium
 ---
 
