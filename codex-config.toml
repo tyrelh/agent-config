@@ -132,7 +132,7 @@ enabled = false
 "gpt-5.4" = "gpt-5.6-terra"
 
 [tui]
-status_line = ["model-with-reasoning", "current-dir", "thread-name", "context-used", "five-hour-limit", "weekly-limit", "estimated-thread-cost"]
+status_line = ["model-with-reasoning", "thread-name", "context-used", "five-hour-limit", "weekly-limit", "estimated-thread-cost"]
 status_line_use_colors = true
 screen_reader_detection_done = true
 
