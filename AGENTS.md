@@ -117,15 +117,3 @@ A plan linked from `## Notes` is ingested like any other source. Keep the reason
 ## Project context
 Projects may contain configurations from other types of agents. You should read these into context.
 - .cursor/rules/*.md in the root of the project. This contains multiple rule files each with a file glob pattern in it's metadata describing which kinds of files it's applicable for.
-
-## Skills
-A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
-### Available skills
-- gh-debug-actions: Debug GitHub Actions workflow runs and deployments by locating the relevant run, fetching logs (full or failed-only), and summarizing root causes. Use when asked to debug failed GitHub Actions runs, explain why a workflow run failed, retrieve logs, or investigate CI/CD deployments. Supports default repos Giftbit/lightrail and Giftbit/giftbitfe, and any explicitly specified repo. (file: /Users/tyrel/.codex/skills/gh-debug-actions/SKILL.md)
-- gh-fix-ci: Use when a user asks to debug or fix failing GitHub PR checks that run in GitHub Actions; use `gh` to inspect checks and logs, summarize failure context, draft a fix plan, and implement only after explicit approval. Treat external providers (for example Buildkite) as out of scope and report only the details URL. (file: /Users/tyrel/.codex/skills/gh-fix-ci/SKILL.md)
-- gh-pr: Use this skill when a user asks to create a GitHub PR (pull request). It contains conventions for creating PRs. (file: /Users/tyrel/.codex/skills/gh-pr/SKILL.md)
-- git-branch: Use this skill when creating git branches. It contains conventions for creating branches. (file: /Users/tyrel/.codex/skills/git-branch/SKILL.md)
-- manage-shortcut-stories: Manage Shortcut stories via API. Use when you need to find or create a Shortcut ticket, list projects/workflows/teams, assign owners/teams, fetch story details, or update a story's workflow state to in-progress (started) or ready-for-review. Includes keyword-based search with user prompts, story creation, and story updates. (file: /Users/tyrel/.codex/skills/manage-shortcut-stories/SKILL.md)
-- htmx: HTMX development guidelines for building dynamic web applications with minimal JavaScript using HTML attributes. (file: /Users/tyrel/.codex/skills/htmx/SKILL.md)
-- terraform-giftbit: Terraform workflows infrastructure on AWS with Datadog and Stytch providers. Use when Codex needs to create or update Terraform modules, add or refactor resources, manage state/backends, or edit environment configuration in `config/env.tfvars` files that CI/CD iterates over. (file: /Users/tyrel/.codex/skills/terraform-giftbit/SKILL.md)
-- handoff: Used to summarize a threads context to be passed off to a new agent or thread.
