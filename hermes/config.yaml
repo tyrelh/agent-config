@@ -192,6 +192,10 @@ platform_toolsets:
     - hermes-teams
   google_chat:
     - hermes-google_chat
+mcp_servers:
+  wispr:
+    url: "https://api.wisprflow.ai/connect/mcp"
+    auth: oauth
 
 # ── Security ──────────────────────────────────────────────────────────
 # Secret redaction is ON by default — strings that look like API keys,
