@@ -96,7 +96,7 @@ Link new vault documents from the appropriate entry in Tasks or Notes according 
 
 ## Magpie ingestion
 
-Magpie (`magpie/`) is the LLM knowledge wiki. It discovers sources only through wikilinks in the `## Notes` section of today's entry in the current term log. Links in `Tasks`, `Meetings`, `Left off`, and `Personal` are not scanned, and older days are not re-scanned. So a document that should be ingested has to be linked from today's `## Notes` on the day it's created or substantially changed.
+Magpie (`magpie/`) is the LLM knowledge wiki. It discovers sources through wikilinks in **any `## ` section** of today's entry in the current term log — Meetings, Tasks, Notes, Left off, and Personal are all scanned. Older days are not re-scanned. So a document that should be ingested has to be linked from today's entry on the day it's created or substantially changed.
 
 - A document opts out permanently with `magpie: ignore` in its frontmatter; that also holds a previously queued source out of the pending queue.
 - A source queued on an earlier day stays pending until a pass ingests it, so a run still processes the backlog when today's entry or its `## Notes` section is missing.
