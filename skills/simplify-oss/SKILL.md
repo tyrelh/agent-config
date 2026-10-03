@@ -100,12 +100,14 @@ Keep CONFIRMED and PLAUSIBLE. Drop REFUTED, and list them with the evidence in t
 
 ## Phase 3: walk the findings
 
-One at a time, in rank order. For each:
+One at a time, in rank order. Present each finding in exactly this order:
 
-1. Header: `[n/total] path/to/file.ext:123` and the angle(s).
-2. What and why: two or three lines covering what is redundant, the concrete cost, and the verdict. For a PLAUSIBLE finding, say what is uncertain, since the user is deciding with that in hand.
-3. The diff: write the proposed patch to the scratchpad and show it as a fenced ```diff block. Do not apply it. If a hunk-level diff isn't practical, as in a large refactor, show before and after snippets instead and say so.
-4. Ask: accept, reject, or revise. Wait. Never batch-ask, never assume.
+1. Header: `[n/total] <one-line summary>`, followed by `path/to/file.ext:123` and the angle(s).
+2. Verdict: CONFIRMED or PLAUSIBLE.
+3. Summary: two or three sentences covering what is redundant, the concrete cost, and why it earned that verdict. For a PLAUSIBLE finding, say what is uncertain, since the user is deciding with that in hand.
+4. The diff: write the proposed patch to the scratchpad and show it as a fenced ```diff block. Do not apply it. If a hunk-level diff isn't practical, as in a large refactor, show before and after snippets instead and say so.
+5. Net lines: `+<added> / -<removed> (net <±N>)` for the proposed patch.
+6. Ask: accept (`a`), reject (`r`), or revise. Treat a bare `a` as accept and a bare `r` as reject. Wait. Never batch-ask, never assume.
 
 On accept:
 
