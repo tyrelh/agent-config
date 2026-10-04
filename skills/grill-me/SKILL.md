@@ -6,9 +6,16 @@ reference: Adapted from Matt Pocock https://github.com/mattpocock/skills/
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round, giving your recommended answer for each. Then wait for the user's answers before the next round.
 
-Format a round like so:
+Ask with the harness's native question tool when it has one (`AskUserQuestion` in Claude Code, `request_user_input` in Codex):
+
+- Send the round in groups of 2-4 questions per call. Split a larger frontier across consecutive calls; a frontier of one is a single question.
+- Give each question 1-3 concrete options, at least 2 if the tool requires it. Put your recommended option first and end its label with "(Recommended)". Use the option descriptions for the tradeoffs.
+- The last option is always free-form, so the user can give their own answer. Most tools add an "Other" choice automatically; add one yourself only when the tool doesn't.
+- Put the context the user needs to decide in the question text, not in a message before the call.
+
+Without a native question tool, format the round as text, numbering each question:
 
 ```
 ❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
