@@ -76,7 +76,7 @@
   ],
   "enabledPlugins": {
     "caveman@caveman": true,
-    "ponytail@ponytail": true,
+    "ponytail@ponytail": false,
     "coderabbit@claude-plugins-official": true,
     "notion@claude-plugins-official": false,
     "codex@openai-codex": true,
