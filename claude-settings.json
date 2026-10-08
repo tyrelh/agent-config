@@ -26,6 +26,23 @@
       "Search",
       "WebSearch"
     ],
+    "deny": [
+      "ScheduleWakeup",
+      "ShareOnboardingGuide",
+      "DesignSync",
+      "RemoteTrigger",
+      "Skill(loop)",
+      "Skill(keybindings-help)",
+      "Skill(simplify)",
+      "Skill(security-review)",
+      "Skill(init)",
+      "Skill(anthropic-skills:pptx)",
+      "Skill(anthropic-skills:xlsx)",
+      "Skill(anthropic-skills:google-workspace)",
+      "Skill(anthropic-skills:docx)",
+      "Skill(anthropic-skills:internal-comms)",
+      "Skill(anthropic-skills:morning)"
+    ],
     "defaultMode": "bypassPermissions"
   },
   "model": "opus[1m]",
