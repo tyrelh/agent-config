@@ -76,7 +76,6 @@ display:
   busy_ack_detail: true
 dashboard:
   theme: midnight
-  public_url: http://hermes.tail16ed35.ts.net
   font: theme
 stt:
   enabled: true
@@ -96,7 +95,7 @@ delegation:
   max_iterations: 250
 skills:
   external_dirs:
-    - /home/hermes/agent-config/skills
+    - /Users/tyrel/agent-config/skills
   creation_nudge_interval: 15
   disabled:
     - airtable
@@ -151,6 +150,7 @@ gateway:
   trust_recent_files_seconds: 600
   api_server:
     max_concurrent_runs: 10
+  service_install_choice: install
 streaming:
   enabled: false
 onboarding:
@@ -172,7 +172,23 @@ session_reset:
 group_sessions_per_user: true
 platform_toolsets:
   cli:
-    - hermes-cli
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - cronjob
+    - delegation
+    - file
+    - image_gen
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
   telegram:
     - hermes-telegram
   discord:
@@ -180,7 +196,23 @@ platform_toolsets:
   whatsapp:
     - hermes-whatsapp
   slack:
-    - hermes-slack
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - cronjob
+    - delegation
+    - file
+    - image_gen
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
   signal:
     - hermes-signal
   homeassistant:
@@ -197,3 +229,63 @@ mcp_servers:
   wispr:
     url: https://api.wisprflow.ai/connect/mcp
     auth: oauth
+known_plugin_toolsets:
+  cli:
+    - a2a
+  slack:
+    - a2a
+known_builtin_toolsets:
+  cli:
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - context_engine
+    - cronjob
+    - delegation
+    - discord
+    - discord_admin
+    - file
+    - image_gen
+    - kanban
+    - memory
+    - session_search
+    - skills
+    - stt
+    - terminal
+    - todo
+    - tts
+    - video
+    - video_gen
+    - vision
+    - web
+    - x_search
+    - yuanbao
+  slack:
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - connections
+    - context_engine
+    - cronjob
+    - delegation
+    - discord
+    - discord_admin
+    - file
+    - image_gen
+    - kanban
+    - memory
+    - session_search
+    - skills
+    - stt
+    - terminal
+    - todo
+    - tts
+    - video
+    - video_gen
+    - vision
+    - web
+    - x_search
+    - yuanbao
