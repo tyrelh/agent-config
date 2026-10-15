@@ -112,6 +112,12 @@ Repeat `--ingested` once per source actually read and compiled. Only those are m
 
 Full workflow, ledger columns, and the compiled-note contract: `magpie/schema/context.md` and `magpie/schema/note-schema.md` in the vault.
 
+## Markdown as state store
+
+An Obsidian note can serve as both human-readable UI and machine-readable state for automation (job trackers, release monitors, price watches). See `references/markdown-as-state.md` for the full pattern.
+
+Short version: a cron companion script reads the markdown, parses H2/H3 sections as records, diffs them against an external API, and writes surgical edits back to the same file. The note stays editable by hand and readable in Obsidian while the automation keeps it current.
+
 ## CLI vs direct file edits
 
 **Read and edit the markdown files directly** for anything structural: inserting mid-document, editing a specific section, rewriting a list. Plain file edits, `sed`/`awk`, or the Edit tool.
