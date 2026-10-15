@@ -1,7 +1,7 @@
 model:
-  default: kimi/kimi-k2.6
-  provider: auto
-  base_url: https://openrouter.ai/api/v1
+  default: qwen3.8-27b-splash
+  provider: lmstudio
+  base_url: http://localhost:1234/v1
 timezone: America/Vancouver
 database:
   journal_mode: wal
@@ -12,7 +12,7 @@ agent:
   service_tier: ''
   fast_auto_seconds: 60
   verbose: false
-  reasoning_effort: medium
+  reasoning_effort: high
   personalities: {}
 terminal:
   backend: local
@@ -27,6 +27,7 @@ browser:
   extension_control:
     enabled: false
   cloud_provider: local
+  use_real_profile: true
 tool_loop_guardrails:
   warnings_enabled: true
   hard_stop_enabled: false
@@ -74,6 +75,9 @@ display:
   cleanup_progress: false
   long_running_notifications: true
   busy_ack_detail: true
+  pet:
+    enabled: false
+    slug: jill-stingray
 dashboard:
   theme: midnight
   font: theme
@@ -160,6 +164,7 @@ telemetry:
   shared_metrics:
     enabled: false
     send: false
+    offer_version: 2
 updates:
   pre_update_backup: false
   backup_keep: 5
