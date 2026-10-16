@@ -94,6 +94,10 @@ Link new vault documents from the appropriate entry in Tasks or Notes according 
 - **Clipped article, transcript, or captured research with no other home** → `magpie/raw/`.
 - Everything else stays where it belongs. Magpie cites sources in place; don't move a document into `magpie/raw/` just to get it ingested.
 
+### Meeting notes
+
+Meeting transcripts live in `meetings/` as `<Title YYYY-MM-DD>.md` (e.g. `Standup 2026-10-08.md`); `meetings/processed.md` records ingested Wispr meeting IDs, newest first. Older notes sometimes use the pre-ISO naming `Standup Thu Oct 1 2026.md` — both conventions coexist. `## Meetings` lines in the daily note may already be labeled or wikilinked by the user or hooks (targets sometimes point at `inbox/` notes, and links can dangle to nonexistent files): read the line first, verify the wikilink target exists, preserve the user's label, and add the new link rather than rewriting the line — only replace a wikilink you can prove is dangling.
+
 ## Magpie ingestion
 
 Magpie (`magpie/`) is the LLM knowledge wiki. It discovers sources through wikilinks in **any `## ` section** of today's entry in the current term log — Meetings, Tasks, Notes, Left off, and Personal are all scanned. Older days are not re-scanned. So a document that should be ingested has to be linked from today's entry on the day it's created or substantially changed.
@@ -109,6 +113,10 @@ python3 "$OBSIDIAN_VAULT_PATH/magpie/scripts/wiki_tool.py" finish "<what changed
 ```
 
 Repeat `--ingested` once per source actually read and compiled. Only those are marked ingested. A citation in a compiled note is not proof the current version was read, and identical hashes are not proof of a move. Keep compiled notes source-traceable, and keep proposed plan changes distinct from behavior that shipped.
+
+`discover` scans only today's entry; pass `--date YYYY-MM-DD` to re-scan a past day (missed runs, backfilled entries). A date with no H1 heading exits 0 having queued nothing — check the term log for the day first. Re-running an already-ingested date is safe: only changed sources re-queue.
+
+For a large backlog, don't compile it in one context: batch the sources with disjoint file ownership, run the batches as parallel subagents, and seal with one `finish`. Recipe: [references/magpie-backlog-ingestion.md](references/magpie-backlog-ingestion.md).
 
 Full workflow, ledger columns, and the compiled-note contract: `magpie/schema/context.md` and `magpie/schema/note-schema.md` in the vault.
 
