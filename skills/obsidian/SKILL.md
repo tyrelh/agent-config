@@ -126,6 +126,11 @@ An Obsidian note can serve as both human-readable UI and machine-readable state 
 
 Short version: a cron companion script reads the markdown, parses H2/H3 sections as records, diffs them against an external API, and writes surgical edits back to the same file. The note stays editable by hand and readable in Obsidian while the automation keeps it current.
 
+Always-on rules for these notes:
+- Never hand-edit a tracker note that a watcher script owns; change the script (or call its subcommands) so the next run doesn't fight the edit.
+- A record's list membership is where its source ID sits in the file (active H3, secondary H4 one-liner list, `# Archive`, absent = new), keyed on the ID from its link.
+- Before changing a watcher script, back up the script and note, then test on a scratch copy via `--note` (including a second run to prove idempotence) before touching the real note. The reference has the full procedure and the secondary-list pattern for keeping live-but-rejected records out of the main list.
+
 ## CLI vs direct file edits
 
 **Read and edit the markdown files directly** for anything structural: inserting mid-document, editing a specific section, rewriting a list. Plain file edits, `sed`/`awk`, or the Edit tool.
