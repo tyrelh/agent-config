@@ -91,12 +91,6 @@
         "repo": "JuliusBrussee/caveman"
       }
     },
-    "ponytail": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/DietrichGebert/ponytail.git"
-      }
-    },
     "claude-plugins-official": {
       "source": {
         "source": "github",
@@ -108,6 +102,12 @@
         "source": "github",
         "repo": "openai/codex-plugin-cc"
       }
+    },
+    "ponytail": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/DietrichGebert/ponytail.git"
+      }
     }
   },
   "effortLevel": "high",
@@ -118,11 +118,11 @@
     "claude-opus-5": {
       "effortLevel": "high"
     },
-    "claude-sonnet-5": {
+    "claude-opus-5-5": {
       "effortLevel": "medium"
     },
-    "claude-opus-5-5": {
-      "effortLevel": "high"
+    "claude-sonnet-5": {
+      "effortLevel": "medium"
     }
   },
   "tui": "fullscreen",
