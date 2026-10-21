@@ -302,3 +302,5 @@ fallback_providers:
 sessions:
   auto_archive: true
   auto_archive_days: 14
+auth:
+  adopt_external_logins: false
