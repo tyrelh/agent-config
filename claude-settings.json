@@ -45,7 +45,7 @@
     ],
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus[1m]",
+  "model": "sonnet",
   "hooks": {
     "PostToolUse": [
       {
@@ -82,7 +82,8 @@
     "notion@claude-plugins-official": false,
     "ponytail@ponytail": false,
     "telemetry@builtin": false,
-    "swift-lsp@claude-plugins-official": true
+    "swift-lsp@claude-plugins-official": true,
+    "datadog@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -121,7 +122,7 @@
     "claude-opus-5-5": {
       "effortLevel": "medium"
     },
-    "claude-sonnet-5": {
+    "claude-opus-5-5": {
       "effortLevel": "medium"
     }
   },
@@ -129,6 +130,41 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark-ansi",
   "precomputeCompactionEnabled": true,
+  "switchModelsOnFlag": true,
   "autoContinueAtUsageLimit": true,
-  "fileCheckpointingEnabled": true
+  "fileCheckpointingEnabled": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(terraform apply:*) in infrastructure/aws-*/ — protected IaC scope (Terraform state/backends for ALB, assets bucket, database, deployment-state bucket, ECR, ECS async worker)",
+      "Bash(aws secretsmanager delete-secret:*) — secrets-store destructive action against AWS Secrets Manager"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: Giftbit (github.com/Giftbit org; repo Giftbit/lightrail)",
+      "**Cloud provider(s)**: AWS (core hosting; ECS, S3, ECR, ALB, Secrets Manager per infrastructure/ and CLAUDE.md)",
+      "**Repository visibility**: private (Giftbit/lightrail, confirmed via gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: AWS Secrets Manager (per CLAUDE.md and go/dependencies/secrets_service.go; CI secrets referenced by name only: DATADOG_METRICS_API_KEY, GITHUB_TOKEN, SLACK_BOT_TOKEN, SSH_KNOWN_HOSTS)",
+      "**Default / protected branches**: main (default; protected via active `Main` ruleset per gh — treat as protected despite no classic branch-protection entry)",
+      "**CI/CD deploy targets**: GitHub Actions (lightrail-ci.yml, lightrail-cd.yml, terraform-ci.yml, terraform-cd.yml); AWS ECS (Docker) and AWS Amplify/S3 for frontend, per CLAUDE.md",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
+      "**Source control**: The trusted repo (Giftbit/lightrail) and its origin remote (github.com/Giftbit/lightrail) only — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: assets.giftbit-internal.xyz (config-derived — not a confirmed upload destination; uploads of local data still require confirmation)",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: .env.* files (.env.local, .env.production, .env.production-sandbox, .env.staging, .env.staging-sandbox, .env.stytch, .env.svix, .env.test, .env.aws_temp_creds, .env.aws_dev_username, .env.orgID), docs/private/secrets/dev-secrets.md, go/dependencies/secrets.go and secrets_service*.go, infrastructure/*/.terraform/terraform.tfstate and .env.aws_temp_creds files — share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (e.g. .env.production, .env.production-sandbox, prod ECS/Amplify/S3 targets)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic (production/production-sandbox environments)",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production`; Terraform state and backends under infrastructure/aws-*/ (aws-alb, aws-assets-bucket, aws-database, aws-deployment-state-bucket, aws-ecr, aws-ecs-async-worker)",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development — platform/infrastructure and full-stack work on Lightrail (Go backend, TypeScript/React frontend, Terraform on AWS)",
+      "**Trusted repo**: /Users/tyrel/Giftbit/lightrail and its origin remote (github.com/Giftbit/lightrail), private repo",
+      "**Org-specific CLIs**: gh (GitHub Actions/CI debugging via gh-debug-actions/gh-fix-ci/gh-pr skills), make (bootstrap/build/dev/test targets), terraform (terraform-giftbit skill), gsa, herdr",
+      "**Routine under go/, tests/api/, infrastructure/ prefixes**: make-driven build/test/lint/codegen workflows (make dev-with-debugger, make sqlc-generate, make golang-codegen, make typescript-codegen, make unit-tests, make integration-tests, make lint) are routine dev actions in this repo"
+    ]
+  }
 }
