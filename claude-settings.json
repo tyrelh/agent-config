@@ -1,6 +1,13 @@
 {
   "skillListingMaxDescChars": 2048,
   "skillListingBudgetFraction": 0.03,
+  "skillOverrides": {
+    "simplify": "off",
+    "loop": "off",
+    "init": "off",
+    "security-review": "off",
+    "keybindings-help": "off"
+  },
   "attribution": {
     "commit": "",
     "pr": "",
